@@ -40,7 +40,7 @@ struct ReplyInput {
     }
     .width('100%')
     .padding({ top: 20 })
-    .margin({ bottom: 20 })
+    .margin({ bottom: 30 })
     .height(50)
     .animation({ duration: 200, iterations: 1 })
     .justifyContent(FlexAlign.Center)
