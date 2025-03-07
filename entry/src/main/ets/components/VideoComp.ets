@@ -255,6 +255,7 @@ export struct VideoComp {
             this.showCommentDialog = false
             this.isShowNav = !this.isShowNav
             this.showDialog = false
+            this.scaleSize = 1
           }
         })
         .gesture(GestureGroup(GestureMode.Parallel,
