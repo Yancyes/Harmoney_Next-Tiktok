@@ -2,9 +2,8 @@ import { common } from "../common"
 
 /**
  * 发布评论组件*/
-@Preview
 @Component
-struct ReplyInput {
+export struct ReplyInput {
   @State
   content: string = '' //输入框内容
   publishComment: (content: string) => void = () => {
@@ -47,4 +46,3 @@ struct ReplyInput {
   }
 }
 
-export { ReplyInput }
