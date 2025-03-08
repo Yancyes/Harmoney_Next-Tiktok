@@ -1,6 +1,3 @@
-import { Constants } from "../common"
-import { DataSource, mediaInfo } from "../models"
-import { router } from "@kit.ArkUI"
 
 /**
  * 视频栅格化组件*/
@@ -12,23 +9,7 @@ export struct VideoGrid {
     Column() {
       if (this.data) {
         WaterFlow() {
-          LazyForEach(new DataSource<mediaInfo>(this.data as mediaInfo[]), (item: mediaInfo) => {
-            FlowItem() {
-              Video({
-                src: item.src
-              }).vdSty()
-            }.height(150)
-            .border({
-              color: Color.White,
-              width: .5
-            })
-            .onClick(() => {
-              router.pushUrl({
-                url: Constants.LOADING_VdDETAIL,
-                params: item
-              })
-            })
-          })
+
         }.columnsTemplate('1fr 1fr 1fr')
         .scrollBar(BarState.Off)
       } else {
