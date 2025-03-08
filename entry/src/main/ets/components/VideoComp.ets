@@ -1,9 +1,7 @@
-import { commentDataModel, mediaType } from "../models"
-import { util } from "@kit.ArkTS"
-import { tiktokChatStory } from "../utils"
-import { Comment, ReplyInput, Sidebar, VideoDescribe } from "."
-import { common, Constants } from "../common"
-import { emitter } from "@kit.BasicServicesKit"
+import { mediaType } from '../models'
+import { Sidebar, VideoDescribe } from '.'
+import { Constants } from '../common'
+import { emitter } from '@kit.BasicServicesKit'
 
 @Reusable
 @Component
@@ -37,19 +35,17 @@ export struct VideoComp {
   showCommentDialog: boolean = false
   //视频播控器
   videoController = new VideoController()
-  //评论的数据
-  @State commentList: commentDataModel[] = []
   /** 倍速颜色 */
   @Consume speedColor: string
   /** 倍速字体大小 */
   @Consume speedSize: number
   /**是否显示右侧导航*/
-  @Consume isShowNav: boolean
+  @Consume isShowRightSideBar: boolean
   /**是否显示遮罩层*/
   @Consume showDialog: boolean
   /**
    * 模态弹层高度*/
-  @State dialogHeight: number = 0
+  @Provide dialogHeight: number = 0
   /**
    * 视频缩放值*/
   @Provide scaleSize: number = 1
@@ -94,82 +90,6 @@ export struct VideoComp {
     this.videoSpeed = 1
   }
 
-  //添加评论方法
-  addComment(content: string) {
-    const msg = new commentDataModel({
-      id: util.generateRandomUUID(),
-      avatar: 'https://picx.zhimg.com/027729d02bdf060e24973c3726fea9da_l.jpg?source=06d4cd63',
-      author: 'smallMiSu7',
-      content,
-      time: `${(new Date().getMonth() + 1).toString().padStart(2, '')}-${(new Date().getDate()
-        .toString()
-        .padStart(2, '0'))}`,
-      area: common.getRandomCity(),
-      likeNum: Math.floor(Math.random() * 9999999 + 1),
-      likeFlag: false
-    })
-    //写到ui
-    this.commentList.unshift(msg)
-    //写入首选项
-    tiktokChatStory.addOneTiktokVideoComment(this.item.video.play_addr.uri, msg)
-  }
-
-  @Builder
-  endMegItem(item: commentDataModel, index: number) {
-    Row() {
-      Text('删除')
-        .width('100%').textAlign(TextAlign.Center)
-    }.backgroundColor(Color.Red)
-    .width('100')
-    .height('100%')
-    .onClick(() => {
-      this.commentList.splice(index, 1)
-      tiktokChatStory.delOneTiktokVideoComment(this.item.video.play_addr.uri, item.id as number)
-    })
-  }
-
-  /**
-   * 评论弹窗*/
-  @Builder
-  Dialog() {
-    Column() {
-      Row() {
-        Text(`${this.commentList.length}条评论`)
-          .fontColor(Color.Black)
-          .fontSize(16)
-      }.margin({
-        top: 50
-      })
-
-      List({ space: 20 }) {
-        ForEach(this.commentList, (item: commentDataModel, index: number) => {
-          ListItem() {
-            Comment({ item: item, videoItem: this.item })
-          }
-          .swipeAction({
-            end: this.endMegItem(item, index)
-          })
-        })
-      }.layoutWeight(1)
-      .scrollBar(BarState.Off)
-
-      //评论组件
-      ReplyInput({
-        publishComment: (content: string) => {
-          this.addComment(content)
-        },
-        iptContent: '善语结善缘,恶言伤人心',
-      }).border({
-        width: {
-          top: .5
-        },
-        color: Color.Gray
-      })
-    }.onAreaChange((_oldValue, newValue) => {
-      this.dialogHeight = newValue.height as number
-    })
-  }
-
   startSpeedAnimation() {
     animateTo({ duration: 500, iterations: -1 }, () => {
       this.speedColor = '#ff98fd25'
@@ -185,8 +105,6 @@ export struct VideoComp {
   }
 
   aboutToAppear() {
-    //获取评论数据
-    this.commentList = tiktokChatStory.getOneTiktokVideoAllComment(this.item.video.play_addr.uri)
     this.getMyPageVideoUrl()
     this.onVideoPlayer()
     this.onVideoPause()
@@ -247,17 +165,6 @@ export struct VideoComp {
         .onPause(() => {
           this.playIng = false
         })
-        .bindSheet($$this.showCommentDialog, this.Dialog, {
-          height: '65%',
-          backgroundColor: '#ffefecec',
-          keyboardAvoidMode: SheetKeyboardAvoidMode.RESIZE_ONLY,
-          shouldDismiss: () => {
-            this.showCommentDialog = false
-            this.isShowNav = !this.isShowNav
-            this.showDialog = false
-            this.scaleSize = 1
-          }
-        })
         .gesture(GestureGroup(GestureMode.Parallel,
           LongPressGesture()
             .onAction(() => {
@@ -290,7 +197,7 @@ export struct VideoComp {
           .onAction(() => {
             this.isShowVideoProgressSlider = true
             this.isShowDescribe = false
-            this.isShowNav = false
+            this.isShowRightSideBar = false
           })
       ))
 
@@ -311,16 +218,14 @@ export struct VideoComp {
       }
 
       //侧边功能区组件
-      if (this.isShowNav) {
-        Sidebar({
-          item: this.item
-        })
-      }
+      Sidebar({
+        item: this.item
+      }).visibility(this.isShowRightSideBar?Visibility.Visible:Visibility.Hidden)
     }.onClick(() => {
       //点击控制播放和暂停 默认在播放
       this.playIng ? this.pauseVideo() : this.startVideo()
       this.isShowVideoProgressSlider = false
-      this.isShowNav = true
+      this.isShowRightSideBar = true
       this.isShowDescribe = true
     })
   }

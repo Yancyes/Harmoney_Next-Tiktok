@@ -94,7 +94,8 @@ export struct TopBar {
   @Link
   @Watch('onIndexChange')
   topNavCurrentIndex: number
-
+  @Provide
+  isShowRightSideBar: boolean = true
   /**
    * 当索引发生变化时调用此方法，用于调整分类滚动视图的显示位置
    * 该方法通过比较当前索引和预设的起始、结束位置，决定滚动的方向和目标索引
@@ -159,9 +160,6 @@ export struct TopBar {
     TikTokEmitter.Emitter_VideoCrl(false)
   }
 
-  @Provide
-  isShowNav: boolean = true
-
   build() {
     Stack() {
       Tabs({ index: $$this.topNavCurrentIndex, controller: this.tabController, barPosition: BarPosition.Start }) {
@@ -218,8 +216,8 @@ export struct TopBar {
         BarMainContent: () => {
           this.barMainContent()
         },
-        isShowLeftIcon: this.isShowNav,
-        isShowMainContent: this.isShowNav
+        isShowLeftIcon: this.isShowRightSideBar,
+        isShowMainContent: this.isShowRightSideBar
       })
         .position({ y: this.topHeight + 10 })
     }.position({ y: '-2.5%' })
