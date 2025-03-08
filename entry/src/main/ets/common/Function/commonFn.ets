@@ -52,18 +52,21 @@ class commonFn {
     return new util.TextDecoder().decodeToString(getContext().resourceManager.getRawFileContentSync(path))
   }
 
+  getRandom(value: number) {
+    return Math.floor(Math.random() * value)
+  }
+
   /**
    * 获取随机地名*/
   getRandomCity() {
-    const randomIndex = Math.floor(Math.random() * cities.length)
+    const randomIndex = this.getRandom(cities.length)
     return cities[randomIndex]
   }
 
   /**
    * 随机点赞量*/
-  getRandomLikes() {
-    const randomLikes = Math.floor(Math.random() * 10000)
-    return randomLikes
+  getRandomLikes(): number {
+    return this.getRandom(10000)
   }
 
   /**
