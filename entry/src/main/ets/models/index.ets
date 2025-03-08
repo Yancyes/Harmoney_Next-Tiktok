@@ -1,9 +1,7 @@
 //统一导出
-export { mediaInfo } from './mediaData'
-
 export * from './barData'
 
-export { sideData } from './sidebarData'
+export * from './sidebarData'
 
 export { commentData, commentDataModel } from './commentData'
 
