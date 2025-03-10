@@ -20,10 +20,10 @@ const showToast =
       message,
       backgroundColor,
       textColor: Color.White,
-      duration: time ? time : 1500,
+      duration: time || 1500,
       backgroundBlurStyle: BlurStyle.NONE,
       alignment,
-      offset: offset ? offset : { dx: null, dy: 200 }
+      offset: offset || { dx: null, dy: 200 }
     })
   }
 
