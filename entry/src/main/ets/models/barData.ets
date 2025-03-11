@@ -33,11 +33,11 @@ export class BarClassModel implements BarClass {
 }
 
 export const MyPageOwnInfo: BarClass[] = [
-  { title: '作品', id: 1 },
-  { title: '私密', id: 2 },
-  { title: '推荐', id: 3 },
-  { title: '收藏', id: 4 },
-  { title: '喜欢', id: 5 }
+  { title: '作品' },
+  { title: '私密' },
+  { title: '推荐' },
+  { title: '收藏' },
+  { title: '喜欢' }
 ]
 
 /**

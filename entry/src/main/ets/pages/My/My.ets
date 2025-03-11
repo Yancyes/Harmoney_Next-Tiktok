@@ -256,17 +256,17 @@ export default struct MyPage {
 
           Stack() {
             Tabs({ barPosition: BarPosition.Start, index: $$this.currentIndex }) {
-              ForEach(this.personVd, (item: BarClass) => {
+              ForEach(this.personVd, (item: BarClass, index: number) => {
                 TabContent() {
-                  if (item.id === 1) {
+                  if (index === 0) {
                     VideoGrid()
-                  } else if (item.id === 2) {
+                  } else if (index === 1) {
                     VideoGrid()
-                  } else if (item.id === 3) {
+                  } else if (index === 2) {
                     VideoGrid()
-                  } else if (item.id === 4) {
+                  } else if (index === 3) {
                     VideoGrid()
-                  } else if (item.id === 5) {
+                  } else {
                     VideoGrid()
                   }
                 }
