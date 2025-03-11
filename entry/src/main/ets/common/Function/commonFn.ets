@@ -13,14 +13,14 @@ import { tiktok } from '../../utils'
  * @default 默认值:功能未完善
  * @return {Function} 返回一个弹窗信息*/
 const showToast =
-  (message: string = "功能未完善", time?: number, alignment?: Alignment,
+  (message: string = "功能未完善", time: number = 1500, alignment?: Alignment,
     backgroundColor: ResourceColor = Constants.COLOR_DIALOG_BG, offset?: Offset
   ) => {
     promptAction.showToast({
       message,
       backgroundColor,
       textColor: Color.White,
-      duration: time || 1500,
+      duration: time,
       backgroundBlurStyle: BlurStyle.NONE,
       alignment,
       offset: offset || { dx: null, dy: 200 }
