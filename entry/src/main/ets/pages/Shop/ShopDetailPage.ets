@@ -3,6 +3,8 @@ import { Constants, tipDialog } from '../../common'
 import { TitleTipBtn } from '../../components'
 import { BuyTitle, BuyTitleInfo, shopType } from '../../models'
 
+const BtnSty = ButtonType.Normal
+
 @Entry
 @Component
 struct ShopDetailPage {
@@ -135,7 +137,7 @@ struct ShopDetailPage {
           })
 
           Row() {
-            Button('加入购物车', { type: ButtonType.Normal })
+            Button('加入购物车', { type: BtnSty })
               .borderRadius({
                 topLeft: 40,
                 bottomLeft: 40,
@@ -146,7 +148,7 @@ struct ShopDetailPage {
               .onClick(() => {
                 tipDialog()
               })
-            Button({ type: ButtonType.Normal }) {
+            Button({ type: BtnSty }) {
               Column({ space: 5 }) {
                 Text('优惠价￥' + this.price)
                   .buyWight().fontColor(Color.White).fontSize(15)
