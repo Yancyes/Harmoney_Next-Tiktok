@@ -31,8 +31,8 @@ export default struct MyPage {
     .width(16).height(16)
   }
 
-  @Consume
-  showDialog: boolean
+  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
+
   @Consume
   dialogBgColor: ResourceColor
   /**

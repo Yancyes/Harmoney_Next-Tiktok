@@ -13,8 +13,7 @@ export struct MessagePage {
   userList: UserInfo[] = [] //渲染默认用户列表
   @Consume
   dialogBgColor: string
-  @Consume
-  showDialog: boolean
+  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
   @Consume
   IndexX: number | string
   @StorageProp(Constants.AREA_HEIGHT)

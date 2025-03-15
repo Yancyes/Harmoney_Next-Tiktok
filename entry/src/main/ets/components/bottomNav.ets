@@ -71,10 +71,7 @@ export struct bottomNav {
   //底部title字体的颜色
   @State
   titleColor: ResourceColor[] = [Color.White, Color.Gray]
-  /**
-   * 是否显示弹窗 */
-  @Consume
-  showDialog: boolean
+  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
   @Provide
   dialogBgColor: ResourceColor = '' //修改渐变背景色只能通过#00000000的方式
   @Provide
@@ -86,6 +83,10 @@ export struct bottomNav {
   /*
    * 图片选择数量*/
   maxImgNumber: number = 1 //最多可选1张图片
+
+  aboutToAppear(): void {
+    AppStorage.setOrCreate(Constants.SHOW_DIALOG, this.showDialog)
+  }
 
   /**
    * 选择图片*/

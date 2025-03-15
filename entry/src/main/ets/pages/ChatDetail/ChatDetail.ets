@@ -1,4 +1,5 @@
 import { router } from '@kit.ArkUI'
+import { Constants } from '../../common'
 import Message from '../../components/Message'
 import { ReplyInput } from '../../components/ReplyInput'
 import { CURRENT_USER } from '../../constants'
@@ -17,6 +18,7 @@ struct ChatDetail {
   @StorageProp(CURRENT_USER)
   currentUser: UserInfoModel = new UserInfoModel({} as UserInfo) //我发的消息
   scroller: Scroller = new Scroller()
+  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
 
   aboutToAppear(): void {
     this.getTalkUser()
@@ -86,6 +88,7 @@ struct ChatDetail {
             .fontSize(30)
             .margin({ left: 10 })
             .onClick(() => {
+              this.showDialog = false
               router.back()
             })
             .zIndex(2)

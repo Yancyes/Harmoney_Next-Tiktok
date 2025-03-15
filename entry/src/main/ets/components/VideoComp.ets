@@ -41,14 +41,13 @@ export struct VideoComp {
   @Consume speedSize: number
   /**是否显示右侧导航*/
   @Consume isShowRightSideBar: boolean
-  /**是否显示遮罩层*/
-  @Consume showDialog: boolean
+  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
   /**
    * 模态弹层高度*/
   @Provide dialogHeight: number = 0
   /**
    * 视频缩放值*/
-  @Provide scaleSize: number = 1
+  @State scaleSize: number = 1
   /**
    * 视频播放进度*/
   @State videoPlayProgress: number = 0
@@ -105,6 +104,7 @@ export struct VideoComp {
   }
 
   aboutToAppear() {
+    AppStorage.setOrCreate(Constants.SCALE_SIZE, this.scaleSize)
     this.getMyPageVideoUrl()
     this.onVideoPlayer()
     this.onVideoPause()
@@ -220,7 +220,7 @@ export struct VideoComp {
       //侧边功能区组件
       Sidebar({
         item: this.item
-      }).visibility(this.isShowRightSideBar?Visibility.Visible:Visibility.Hidden)
+      }).visibility(this.isShowRightSideBar ? Visibility.Visible : Visibility.Hidden)
     }.onClick(() => {
       //点击控制播放和暂停 默认在播放
       this.playIng ? this.pauseVideo() : this.startVideo()

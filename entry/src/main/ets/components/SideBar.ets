@@ -13,8 +13,7 @@ struct Sidebar {
   showCommentDialog: boolean
   @Prop
   item: mediaType //视频数据
-  /**是否显示遮罩层*/
-  @Consume showDialog: boolean
+  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
 
   changeLike() {
     if (this.sideDataList[0].isLike) {
@@ -25,7 +24,7 @@ struct Sidebar {
     this.sideDataList[0].isLike = !this.sideDataList[0].isLike
   }
 
-  @Consume scaleSize: number
+  @StorageLink(Constants.SCALE_SIZE) scaleSize: number = 1
   @Consume
   isShowRightSideBar: boolean
   @Consume
@@ -35,7 +34,6 @@ struct Sidebar {
   @Consume dialogHeight: number
   //评论的数据
   @State commentList: commentDataModel[] = []
-
   //侧边栏图标和数据
   @State
   sideDataList: sideDataModel[] = [

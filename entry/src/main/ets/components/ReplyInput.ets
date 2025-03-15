@@ -1,4 +1,4 @@
-import { common } from "../common"
+import { common, Constants } from "../common"
 
 /**
  * 发布评论组件*/
@@ -9,9 +9,8 @@ export struct ReplyInput {
   publishComment: (content: string) => void = () => {
   }
   iptContent: string = ''
-  /**是否显示遮罩层*/
-  @Consume showDialog: boolean
-  @Consume scaleSize: number
+  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
+  @StorageLink(Constants.SCALE_SIZE) scaleSize: number = 1
 
   build() {
     Row() {

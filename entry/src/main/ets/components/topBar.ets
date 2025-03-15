@@ -20,8 +20,7 @@ export struct TopBar {
   tabController: TabsController = new TabsController()
   @Consume
   IndexX: number | string
-  @Consume
-  showDialog: boolean
+  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
   @Consume
   dialogBgColor: string
 
@@ -96,6 +95,7 @@ export struct TopBar {
   topNavCurrentIndex: number
   @Provide
   isShowRightSideBar: boolean = true
+
   /**
    * 当索引发生变化时调用此方法，用于调整分类滚动视图的显示位置
    * 该方法通过比较当前索引和预设的起始、结束位置，决定滚动的方向和目标索引
