@@ -1,5 +1,4 @@
 import { commentDataModel, sideDataModel, mediaType, sideData } from '../models'
-import { } from '../models/sidebarData'
 import { common, Constants, tipDialog } from '../common'
 import { Comment, ImgComp, LikeTextCount, ReplyInput } from '.'
 import { util } from '@kit.ArkTS'
