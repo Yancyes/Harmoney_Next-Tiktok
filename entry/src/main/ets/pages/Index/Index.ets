@@ -275,10 +275,6 @@ struct Index {
    * 提示内容*/
   @State
   TipContent: string = ''
-  /**
-   * 是否显示弹窗 */
-  @Provide
-  showDialog: boolean = false
 
   /**
    * 提示内容功能*/
