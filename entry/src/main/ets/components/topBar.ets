@@ -187,6 +187,7 @@ export struct TopBar {
           }
         })
       }
+      .animationDuration(0)
       .onChange(() => {
         //如果不是推荐页 暂停视频
         if (this.topNavCurrentIndex !== this.topTabList.length - 1) {
@@ -199,7 +200,6 @@ export struct TopBar {
       })
       .height('106%')
       .position({ y: -this.topHeight })
-      .animationDuration(200)
 
       //自定义组件覆盖原来的tabs
       HeadBar({
