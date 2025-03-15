@@ -55,4 +55,10 @@ export class Constants {
   /**
    * 全局视频播放*/
   static readonly GLOBAL_VIDEO_CONTROLLER_PLAYER = "globalVideoControllerPayer"
+  /**
+   * 遮罩弹窗*/
+  static readonly SHOW_DIALOG = "ShowDialog"
+  /**
+   * 视频缩放 */
+  static readonly SCALE_SIZE = "scaleSize"
 }
