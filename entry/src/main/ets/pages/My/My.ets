@@ -2,7 +2,7 @@ import { BarClass, MyPageOwnInfo, UserInfoModel } from '../../models'
 import { router } from '@kit.ArkUI'
 import { tiktok } from '../../utils/setting'
 import { tipDialog } from '../../common'
-import { iconBtn, ImgComp, scrollbar, VideoGrid } from '../../components'
+import { iconBtn, ImgComp, scrollbar, TitleTipBtn, VideoGrid } from '../../components'
 import { Constants } from '../../common/Constants'
 
 @Component
@@ -22,17 +22,11 @@ export default struct MyPage {
   videoBgUrl: string = ''
 
   @Styles
-  btnBg(){
-    .width(40).height(40).backgroundColor('rgba(48, 48, 48, 0.5)').border({ radius: 40 })
-  }
-
-  @Styles
   imgBg(){
     .width(16).height(16)
   }
 
   @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
-
   @Consume
   dialogBgColor: ResourceColor
   /**
@@ -114,6 +108,30 @@ export default struct MyPage {
    * */
   scroll: Scroller = new Scroller()
 
+  @Builder
+  newPerson() {
+    ImgComp({
+      imgWidth: 16,
+      imgSrc: $r("app.media.icon_connect")
+    })
+  }
+
+  @Builder
+  search() {
+    ImgComp({
+      imgWidth: 28,
+      imgSrc: $r("app.media.icon_search")
+    })
+  }
+
+  @Builder
+  iconTab() {
+    ImgComp({
+      imgWidth: 16,
+      imgSrc: $r("app.media.icon_Tab")
+    })
+  }
+
   build() {
     Scroll() {
       //把上下两个模块包在一起
@@ -123,42 +141,34 @@ export default struct MyPage {
           //右侧按钮
           Stack() {
             Row({ space: 20 }) {
-              Row({ space: 5 }) {
-                ImgComp({
-                  imgWidth: 16,
-                  imgSrc: $r("app.media.icon_connect")
-                })
-                Text("新访客1").fontSize(14).fontColor(Color.White)
-              }.btnBg().width(90).justifyContent(FlexAlign.Center)
-              .onClick(() => {
+              TitleTipBtn({
+                w: 90,
+                img: () => {
+                  this.newPerson()
+                },
+                title: '新访客1'
+              }).onClick(() => {
                 tipDialog()
               })
-
               //搜索和功能按钮区
               Row({ space: 10 }) {
-                Row() {
-                  ImgComp({
-                    imgWidth: 28,
-                    imgSrc: $r("app.media.icon_search")
-                  })
-                }.btnBg().justifyContent(FlexAlign.Center)
-                .onClick(() => {
+                TitleTipBtn({
+                  img: () => {
+                    this.search()
+                  }
+                }).onClick(() => {
                   tipDialog()
                 })
-
-                Row() {
-                  ImgComp({
-                    imgWidth: 16,
-                    imgSrc: $r("app.media.icon_Tab")
-                  })
-                }.btnBg().justifyContent(FlexAlign.Center)
-                .onClick(() => {
+                TitleTipBtn({
+                  img: () => {
+                    this.iconTab()
+                  }
+                }).onClick(() => {
                   animateTo({ duration: 200 }, () => {
                     this.openRightSideBar()
                   })
                 })
               }
-
             }
             .width('100%').height(50).justifyContent(FlexAlign.End).margin({ top: 10, right: 15 })
           }.width('100%').height('50%').zIndex(3).position({ y: 0 })
