@@ -143,6 +143,7 @@ export default struct MyPage {
             Row({ space: 20 }) {
               TitleTipBtn({
                 w: 90,
+                op:1,
                 img: () => {
                   this.newPerson()
                 },
@@ -153,6 +154,7 @@ export default struct MyPage {
               //搜索和功能按钮区
               Row({ space: 10 }) {
                 TitleTipBtn({
+                  op:1,
                   img: () => {
                     this.search()
                   }
@@ -160,6 +162,7 @@ export default struct MyPage {
                   tipDialog()
                 })
                 TitleTipBtn({
+                  op:1,
                   img: () => {
                     this.iconTab()
                   }
