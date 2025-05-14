@@ -8,7 +8,6 @@ import MyPage from '../pages/My/My'
 import { photoAccessHelper } from '@kit.MediaLibraryKit'
 import { TikTokEmitter } from '../utils/TIkTokEmitter'
 import { BtnType } from '../GlobalEnum'
-import { router } from '@kit.ArkUI'
 
 
 @Component
@@ -209,11 +208,6 @@ export struct bottomNav {
         if (item.name === BtnType.Upload) {
           TikTokEmitter.Emitter_VideoCrl(false)
         }
-      } else {
-        //未登录 跳转登录页
-        router.replaceUrl({
-          url: Constants.LOADING_LOGIN
-        })
       }
     })
   }
