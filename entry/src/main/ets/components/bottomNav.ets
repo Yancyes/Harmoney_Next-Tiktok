@@ -8,6 +8,7 @@ import MyPage from '../pages/My/My'
 import { photoAccessHelper } from '@kit.MediaLibraryKit'
 import { TikTokEmitter } from '../utils/TIkTokEmitter'
 import { BtnType } from '../GlobalEnum'
+import { router } from '@kit.ArkUI'
 
 
 @Component
@@ -191,9 +192,11 @@ export struct bottomNav {
       item.click && item.click()
       //如果有用户信息才执行点击事件
       if (tiktok.getUserInfo()) {
+        //非图标按钮允许执行后续逻辑
         if (item.name !== BtnType.Upload) {
           const index = this.btmTabList.findIndex(obj => obj.name === item.name)
           this.tabController.changeIndex(index)
+          //不是主页 禁止播放
           if (item.name !== BtnType.Home) {
             TikTokEmitter.Emitter_VideoCrl(false)
           }
@@ -206,6 +209,11 @@ export struct bottomNav {
         if (item.name === BtnType.Upload) {
           TikTokEmitter.Emitter_VideoCrl(false)
         }
+      } else {
+        //未登录 跳转登录页
+        router.replaceUrl({
+          url: Constants.LOADING_LOGIN
+        })
       }
     })
   }
