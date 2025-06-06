@@ -1,5 +1,5 @@
-import { preferences } from "@kit.ArkData"
-import { commentDataModel } from "../models"
+import { preferences } from '@kit.ArkData'
+import { commentDataModel } from '../models'
 
 class TiktokChatStory {
   context?: Context
@@ -57,25 +57,16 @@ class TiktokChatStory {
   }
 
   /**
-   * 评论的点赞数量修改*/
-  async changeOneTiktokVideoCommentLike(videoId: string, messageId: number, like: number) {
+   * 单条评论状态修改*/
+  async changeOneTiktokVideoCommentLike(videoId: string, messageId: number, likeCount: number,likeFlag: boolean) {
     const store = this.getVideoStore(videoId)
     const list = this.getOneTiktokVideoAllComment(videoId)
     const index = list.findIndex(item => item.id === messageId)
-    list[index].likeNum = like
+    list[index].likeNum = likeCount
+    list[index].likeFlag = likeFlag
+    //先删再写人
     await store.delete(videoId)
-    store.putSync(videoId, JSON.stringify(list))
-    await store.flush()
-  }
-  /**
-   * 评论的点赞状态修改*/
-  async changeOneTiktokVideoCommentLikeStatus(videoId: string, messageId: number, likeStatus: boolean) {
-    const store = this.getVideoStore(videoId)
-    const list = this.getOneTiktokVideoAllComment(videoId)
-    const index = list.findIndex(item => item.id === messageId)
-    list[index].likeFlag = likeStatus
-    await store.delete(videoId)
-    store.putSync(videoId, JSON.stringify(list))
+    await store.put(videoId, JSON.stringify(list))
     await store.flush()
   }
 }

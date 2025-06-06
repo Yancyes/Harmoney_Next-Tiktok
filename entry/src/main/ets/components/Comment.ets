@@ -16,15 +16,13 @@ export struct Comment {
   changeLike() {
     if (this.item.likeFlag) { //如果点过赞
       this.item.likeNum--
-    } //没点过赞
-    else {
+    } else {
       this.item.likeNum++
     }
     this.item.likeFlag = !this.item.likeFlag
+    //修改首选项
     tiktokChatStory.changeOneTiktokVideoCommentLike(this.videoItem.video.play_addr.uri, this.item.id as number,
-      this.item.likeNum)
-    tiktokChatStory.changeOneTiktokVideoCommentLikeStatus(this.videoItem.video.play_addr.uri, this.item.id as number,
-      this.item.likeFlag)
+      this.item.likeNum,this.item.likeFlag)
   }
 
   @State
