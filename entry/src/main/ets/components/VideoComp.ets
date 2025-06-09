@@ -204,17 +204,17 @@ export struct VideoComp {
       //视频进度条
       if (this.isShowVideoProgressSlider) {
         Slider({
-          value: $$this.videoPlayProgress,
+          value: this.videoPlayProgress,
           min: 0,
-          max: this.videoTotalDuration,
-          style: SliderStyle.InSet
+          max: this.videoTotalDuration
         })
-          .width('90%')
-          .height(20)
-          .backgroundColor('#ff5f5f5f')
-          .borderRadius(10)
+          .layoutWeight(1)
+          .trackColor('#ff565656')
+          .trackThickness(4)
           .selectedColor('#ffeeeeee')
-          .margin({ left: 20, right: 20, bottom: 5 })
+          .onChange((e) => {
+            this.videoController.setCurrentTime(e)
+          })
       }
 
       //侧边功能区组件
