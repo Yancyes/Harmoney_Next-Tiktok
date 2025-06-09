@@ -137,6 +137,17 @@ export struct VideoComp {
     })
   }
 
+  toStr(v: number) {
+    return v.toString().padStart(2, '0')
+  }
+
+  format(num: number) {
+    const totalSeconds = Math.floor(num)
+    const minutes = Math.floor(totalSeconds / 60)
+    const secs = totalSeconds % 60
+    return this.toStr(minutes) + ':' + this.toStr(secs)
+  }
+
   build() {
     Stack({ alignContent: Alignment.BottomStart }) {
       Video({
@@ -203,20 +214,28 @@ export struct VideoComp {
 
       //视频进度条
       if (this.isShowVideoProgressSlider) {
-        Slider({
-          value: this.videoPlayProgress,
-          min: 0,
-          max: this.videoTotalDuration
-        })
-          .layoutWeight(1)
-          .trackColor('#ff565656')
-          .trackThickness(4)
-          .selectedColor('#ffeeeeee')
-          .onChange((e) => {
-            this.videoController.setCurrentTime(e)
-          })
-      }
+        Column({ space: 50 }) {
+          Row({ space: 20 }) {
+            Text(this.format(this.videoPlayProgress)).TextProgress(Color.White)
+            Text('|').TextProgress(Color.White)
+            Text(this.format(this.videoTotalDuration)).TextProgress(Constants.COLOR_GREY)
+          }
 
+          Slider({
+            value: this.videoPlayProgress,
+            min: 0,
+            max: this.videoTotalDuration
+          })
+            .margin({ bottom: -20, left: 10, right: 10 })
+            .layoutWeight(1)
+            .trackColor('#ff565656')
+            .trackThickness(6)
+            .selectedColor('#ffeeeeee')
+            .onChange((e) => {
+              this.videoController.setCurrentTime(e)
+            })
+        }.height(150)
+      }
       //侧边功能区组件
       Sidebar({
         item: this.item
@@ -229,4 +248,10 @@ export struct VideoComp {
       this.isShowDescribe = true
     })
   }
+}
+
+@Extend(Text)
+function TextProgress(color: ResourceColor) {
+  .fontColor(color)
+  .fontSize(35)
 }
