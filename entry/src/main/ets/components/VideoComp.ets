@@ -55,7 +55,7 @@ export struct VideoComp {
    * 视频总时长*/
   @State videoTotalDuration: number = 0
   /**
-   * 是否显示视频进度条条*/
+   * 是否显示视频进度条*/
   @State isShowVideoProgressSlider: boolean = false
   /**
    * 是否显示视频描述*/
