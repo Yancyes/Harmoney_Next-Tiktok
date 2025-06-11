@@ -2,6 +2,7 @@ import { mediaType } from '../models'
 import { Sidebar, VideoDescribe } from '.'
 import { Constants } from '../common'
 import { emitter } from '@kit.BasicServicesKit'
+import { display } from '@kit.ArkUI'
 
 @Reusable
 @Component
@@ -60,6 +61,8 @@ export struct VideoComp {
   /**
    * 是否显示视频描述*/
   @State isShowDescribe: boolean = true
+  @State screenHeight: number = 0
+  @State screenWidth: number = 0
 
   /**
    * 更新切换索引的状态*/
@@ -105,6 +108,8 @@ export struct VideoComp {
 
   aboutToAppear() {
     AppStorage.setOrCreate(Constants.SCALE_SIZE, this.scaleSize)
+    this.screenHeight = px2vp(display.getDefaultDisplaySync().height)
+    this.screenWidth = px2vp(display.getDefaultDisplaySync().width)
     this.getMyPageVideoUrl()
     this.onVideoPlayer()
     this.onVideoPause()
@@ -197,18 +202,38 @@ export struct VideoComp {
       }
       //视频描述
       Row() {
-        if (this.isShowDescribe) {
-          VideoDescribe({
-            title: this.item.music.author,
-            describe: this.item.desc
+        VideoDescribe({
+          title: this.item.music.author,
+          describe: this.item.desc
+        }).visibility(this.isShowDescribe ? Visibility.Visible : Visibility.Hidden)
+      }.layoutWeight(1).height(65)
+      .gesture(GestureGroup(GestureMode.Parallel,
+        PanGesture()
+          .onActionUpdate((e) => {
+            //手指在视频区域   75是底部导航栏高度
+            if (e.fingerList[0].globalY < this.screenHeight - 75) {
+              this.isShowVideoProgressSlider = true
+              this.isShowDescribe = false
+              this.isShowRightSideBar = false
+            }
+            const condition = this.videoPlayProgress < this.videoTotalDuration
+            //手指在屏幕左侧
+            if (e.fingerList[0].globalX < this.screenWidth / 2) {
+              if (this.videoPlayProgress > 0 && condition) {
+                //设置进度
+                this.videoController.setCurrentTime(this.videoPlayProgress--)
+              }
+            } else {
+              if (condition) {
+                //设置进度
+                this.videoController.setCurrentTime(this.videoPlayProgress++)
+              }
+            }
           })
-        }
-      }.gesture(GestureGroup(GestureMode.Parallel,
-        LongPressGesture()
-          .onAction(() => {
-            this.isShowVideoProgressSlider = true
-            this.isShowDescribe = false
-            this.isShowRightSideBar = false
+          .onActionEnd(() => {
+            this.isShowVideoProgressSlider = false
+            this.isShowDescribe = true
+            this.isShowRightSideBar = true
           })
       ))
 
@@ -222,7 +247,7 @@ export struct VideoComp {
           }
 
           Slider({
-            value: this.videoPlayProgress,
+            value: $$this.videoPlayProgress,
             min: 0,
             max: this.videoTotalDuration
           })
@@ -231,9 +256,6 @@ export struct VideoComp {
             .trackColor('#ff565656')
             .trackThickness(6)
             .selectedColor('#ffeeeeee')
-            .onChange((e) => {
-              this.videoController.setCurrentTime(e)
-            })
         }.height(150)
       }
       //侧边功能区组件
@@ -243,9 +265,6 @@ export struct VideoComp {
     }.onClick(() => {
       //点击控制播放和暂停 默认在播放
       this.playIng ? this.pauseVideo() : this.startVideo()
-      this.isShowVideoProgressSlider = false
-      this.isShowRightSideBar = true
-      this.isShowDescribe = true
     })
   }
 }
