@@ -48,3 +48,5 @@ export { waterFlowList } from './watetFlowList'
 export { shopComp } from './shopComp'
 
 export { ChatReplyInput } from './ChatReplyInput'
+
+export { ReplyBox } from './ReplyBox'
