@@ -1,6 +1,6 @@
 import { commentDataModel, mediaType, sideData, sideDataModel } from '../models'
 import { common, Constants, tipDialog } from '../common'
-import { Comment, ImgComp, LikeTextCount, ReplyInput } from '.'
+import { Comment, ImgComp, LikeTextCount, ReplyBox, ReplyInput } from '.'
 import { util } from '@kit.ArkTS'
 import { tiktokChatStory } from '../utils'
 
@@ -134,7 +134,7 @@ struct Sidebar {
       }.layoutWeight(1)
       .scrollBar(BarState.Off)
 
-      Row({ space: 5 }) {
+      ReplyBox() {
         //评论组件
         ReplyInput({
           publishComment: (content: string) => {
@@ -155,14 +155,7 @@ struct Sidebar {
             //清空输入框
             this.content = ''
           })
-
-      }.width('100%').border({
-        width: {
-          top: .5
-        },
-        color: Color.Gray
-      })
-
+      }
     }.onAreaChange((_oldValue, newValue) => {
       this.dialogHeight = newValue.height as number
     })
