@@ -1,4 +1,4 @@
-import { commentDataModel, sideDataModel, mediaType, sideData } from '../models'
+import { commentDataModel, mediaType, sideData, sideDataModel } from '../models'
 import { common, Constants, tipDialog } from '../common'
 import { Comment, ImgComp, LikeTextCount, ReplyInput } from '.'
 import { util } from '@kit.ArkTS'
@@ -33,6 +33,8 @@ struct Sidebar {
   @Consume dialogHeight: number
   //评论的数据
   @State commentList: commentDataModel[] = []
+  //评论内容
+  @Provide content: string = ''
   //侧边栏图标和数据
   @State
   sideDataList: sideDataModel[] = [
@@ -132,18 +134,35 @@ struct Sidebar {
       }.layoutWeight(1)
       .scrollBar(BarState.Off)
 
-      //评论组件
-      ReplyInput({
-        publishComment: (content: string) => {
-          this.addComment(content)
-        },
-        iptContent: '善语结善缘,恶言伤人心',
-      }).border({
+      Row({ space: 5 }) {
+        //评论组件
+        ReplyInput({
+          publishComment: (content: string) => {
+            this.addComment(content)
+          },
+          iptContent: '善语结善缘,恶言伤人心',
+        }).layoutWeight(1)
+        Button('发送')
+          .backgroundColor(this.content ? '#fffd2217' : Color.White)
+          .border(this.content ? { radius: 20, width: 0 } : { width: .5, color: Color.Black })
+          .height(40)
+          .fontColor(this.content ? Color.White : Color.Gray)
+          .margin({ right: 15, bottom: 10 })
+          .animation({ duration: 200 })
+          .enabled(this.content ? true : false)
+          .onClick(() => {
+            this.addComment(this.content)
+            //清空输入框
+            this.content = ''
+          })
+
+      }.width('100%').border({
         width: {
           top: .5
         },
         color: Color.Gray
       })
+
     }.onAreaChange((_oldValue, newValue) => {
       this.dialogHeight = newValue.height as number
     })
