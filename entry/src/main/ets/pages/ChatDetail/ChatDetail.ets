@@ -1,6 +1,6 @@
 import { router } from '@kit.ArkUI'
 import { Constants } from '../../common'
-import { ChatReplyInput } from '../../components'
+import { ChatReplyInput, ReplyBox } from '../../components'
 import Message from '../../components/Message'
 import { CURRENT_USER } from '../../constants'
 import { UserInfo, UserInfoModel } from '../../models'
@@ -77,6 +77,8 @@ struct ChatDetail {
     this.scroller.scrollEdge(Edge.Bottom)
   }
 
+  @Provide content: string = ''
+
   build() {
     Column() {
       //顶部聊天对象信息区
@@ -119,11 +121,27 @@ struct ChatDetail {
       }.layoutWeight(8)
       .padding({ top: 20, bottom: 20 })
 
-      ChatReplyInput({
-        iptContent: '发送消息', publishComment: (content: string) => {
-          this.sendTextMessage(content)
+      ReplyBox() {
+        ChatReplyInput({
+          iptContent: '发送消息', publishComment: (content: string) => {
+            this.sendTextMessage(content)
+          }
+        }).layoutWeight(1)
+        if (this.content) {
+          Button('发送')
+            .backgroundColor(Color.Green)
+            .height(40)
+            .borderRadius(10)
+            .fontColor(Color.White)
+            .margin({ right: 15, bottom: 10 })
+            .animation({ duration: 200 })
+            .onClick(() => {
+              this.sendTextMessage(this.content)
+              //清空输入框
+              this.content = ''
+            })
         }
-      })
+      }
     }
     .height('100%').justifyContent(FlexAlign.SpaceBetween).margin({ top: '10%' }).padding({ bottom: '10%' })
   }

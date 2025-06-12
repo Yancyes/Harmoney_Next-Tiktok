@@ -4,8 +4,8 @@ import { common, Constants } from '../common'
  * 发布评论组件*/
 @Component
 export struct ChatReplyInput {
-  @State
-  content: string = '' //输入框内容
+  @Consume
+  content: string //输入框内容
   publishComment: (content: string) => void = () => {
   }
   iptContent: string = ''
