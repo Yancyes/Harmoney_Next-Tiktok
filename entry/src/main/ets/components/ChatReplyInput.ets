@@ -1,4 +1,4 @@
-import { common, Constants } from '../common'
+import { common } from '../common'
 
 /**
  * 发布评论组件*/
@@ -9,8 +9,6 @@ export struct ChatReplyInput {
   publishComment: (content: string) => void = () => {
   }
   iptContent: string = ''
-  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
-  @StorageLink(Constants.SCALE_SIZE) scaleSize: number = 1
 
   build() {
     Row() {
@@ -19,11 +17,6 @@ export struct ChatReplyInput {
         .width('90%')
         .height(45)
         .borderRadius(40)
-        .onFocus(() => {
-          //显示遮罩层
-          this.showDialog = true
-          this.scaleSize = 1.1
-        })
         .onSubmit(() => {
           if (this.content) {
             this.publishComment(this.content)
