@@ -46,3 +46,5 @@ export { TitleTipBtn } from './titleTipBtn'
 export { waterFlowList } from './watetFlowList'
 
 export { shopComp } from './shopComp'
+
+export { ChatReplyInput } from './ChatReplyInput'

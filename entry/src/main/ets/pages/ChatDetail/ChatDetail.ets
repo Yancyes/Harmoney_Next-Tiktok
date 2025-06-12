@@ -1,7 +1,7 @@
 import { router } from '@kit.ArkUI'
 import { Constants } from '../../common'
+import { ChatReplyInput } from '../../components'
 import Message from '../../components/Message'
-import { ReplyInput } from '../../components/ReplyInput'
 import { CURRENT_USER } from '../../constants'
 import { UserInfo, UserInfoModel } from '../../models'
 import { MessageInfo, MessageInfoModel } from '../../models/message'
@@ -119,7 +119,7 @@ struct ChatDetail {
       }.layoutWeight(8)
       .padding({ top: 20, bottom: 20 })
 
-      ReplyInput({
+      ChatReplyInput({
         iptContent: '发送消息', publishComment: (content: string) => {
           this.sendTextMessage(content)
         }
