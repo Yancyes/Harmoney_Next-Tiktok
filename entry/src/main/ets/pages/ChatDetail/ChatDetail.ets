@@ -77,7 +77,7 @@ struct ChatDetail {
     this.scroller.scrollEdge(Edge.Bottom)
   }
 
-  @Provide content: string = ''
+  @State content: string = ''
 
   build() {
     Column() {
@@ -123,7 +123,7 @@ struct ChatDetail {
 
       ReplyBox() {
         ChatReplyInput({
-          iptContent: '发送消息', publishComment: (content: string) => {
+          iptContent: '发送消息', content: this.content, publishComment: (content: string) => {
             this.sendTextMessage(content)
           }
         }).layoutWeight(1)

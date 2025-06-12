@@ -4,7 +4,7 @@ import { common, Constants } from '../common'
  * 发布评论组件*/
 @Component
 export struct ReplyInput {
-  @Consume
+  @Link
   content: string //输入框内容
   publishComment: (content: string) => void = () => {
   }

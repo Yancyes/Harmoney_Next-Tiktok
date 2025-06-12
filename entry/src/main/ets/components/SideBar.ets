@@ -34,7 +34,7 @@ struct Sidebar {
   //评论的数据
   @State commentList: commentDataModel[] = []
   //评论内容
-  @Provide content: string = ''
+  @State content: string = ''
   //侧边栏图标和数据
   @State
   sideDataList: sideDataModel[] = [
@@ -139,7 +139,7 @@ struct Sidebar {
         ReplyInput({
           publishComment: (content: string) => {
             this.addComment(content)
-          },
+          }, content: this.content,
           iptContent: '善语结善缘,恶言伤人心',
         }).layoutWeight(1)
         Button('发送')
