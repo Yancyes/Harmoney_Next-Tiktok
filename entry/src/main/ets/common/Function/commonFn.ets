@@ -56,6 +56,9 @@ class commonFn {
     return Math.floor(Math.random() * value)
   }
 
+  toStr(v: number) {
+    return v.toString().padStart(2, '0')
+  }
   /**
    * 获取随机地名*/
   getRandomCity() {

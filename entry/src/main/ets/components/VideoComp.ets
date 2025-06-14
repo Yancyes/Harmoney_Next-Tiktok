@@ -1,6 +1,6 @@
 import { mediaType } from '../models'
 import { Sidebar, VideoDescribe } from '.'
-import { Constants } from '../common'
+import { common, Constants } from '../common'
 import { emitter } from '@kit.BasicServicesKit'
 import { display } from '@kit.ArkUI'
 
@@ -63,7 +63,7 @@ export struct VideoComp {
   @State isShowDescribe: boolean = true
   @State screenHeight: number = 0
   @State screenWidth: number = 0
-
+  ctx = this.getUIContext()
   /**
    * 更新切换索引的状态*/
   updateActiveIndex() {
@@ -93,14 +93,14 @@ export struct VideoComp {
   }
 
   startSpeedAnimation() {
-    animateTo({ duration: 500, iterations: -1 }, () => {
+    this.ctx.animateTo({ duration: 500, iterations: -1 }, () => {
       this.speedColor = '#ff98fd25'
       this.speedSize = 40
     })
   }
 
   stopSpeedAnimation() {
-    animateTo({ duration: 500, iterations: -1 }, () => {
+    this.ctx.animateTo({ duration: 500, iterations: -1 }, () => {
       this.speedColor = '#ff4e4e4e'
       this.speedSize = 30
     })
@@ -108,8 +108,8 @@ export struct VideoComp {
 
   aboutToAppear() {
     AppStorage.setOrCreate(Constants.SCALE_SIZE, this.scaleSize)
-    this.screenHeight = px2vp(display.getDefaultDisplaySync().height)
-    this.screenWidth = px2vp(display.getDefaultDisplaySync().width)
+    this.screenHeight = this.ctx.px2vp(display.getDefaultDisplaySync().height)
+    this.screenWidth = this.ctx.px2vp(display.getDefaultDisplaySync().width)
     this.getMyPageVideoUrl()
     this.onVideoPlayer()
     this.onVideoPause()
@@ -142,15 +142,12 @@ export struct VideoComp {
     })
   }
 
-  toStr(v: number) {
-    return v.toString().padStart(2, '0')
-  }
 
   format(num: number) {
     const totalSeconds = Math.floor(num)
     const minutes = Math.floor(totalSeconds / 60)
     const secs = totalSeconds % 60
-    return this.toStr(minutes) + ':' + this.toStr(secs)
+    return common.toStr(minutes) + ':' + common.toStr(secs)
   }
 
   build() {

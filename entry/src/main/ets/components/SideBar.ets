@@ -82,11 +82,9 @@ struct Sidebar {
       avatar: 'https://picx.zhimg.com/027729d02bdf060e24973c3726fea9da_l.jpg?source=06d4cd63',
       author: 'smallMiSu7',
       content,
-      time: `${(new Date().getMonth() + 1).toString().padStart(2, '')}-${(new Date().getDate()
-        .toString()
-        .padStart(2, '0'))}`,
+      time: `${common.toStr(new Date().getMonth() + 1)}-${common.toStr(new Date().getDate())}`,
       area: common.getRandomCity(),
-      likeNum: Math.floor(Math.random() * 9999999 + 1),
+      likeNum: common.getRandom(99999 + 1),
       likeFlag: false
     })
     //写到ui
