@@ -5,7 +5,7 @@ export { TopBar } from './topBar'
 
 export { Sidebar } from './SideBar'
 
-export { ReplyInput } from './ReplyInput'
+export { ReplyInput,Input,ReplyBox } from './ReplyInput'
 
 export { Card } from './Card'
 
@@ -46,7 +46,3 @@ export { TitleTipBtn } from './titleTipBtn'
 export { waterFlowList } from './watetFlowList'
 
 export { shopComp } from './shopComp'
-
-export { ChatReplyInput } from './ChatReplyInput'
-
-export { ReplyBox } from './ReplyBox'
