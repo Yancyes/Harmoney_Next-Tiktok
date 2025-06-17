@@ -64,8 +64,6 @@ class TiktokChatStory {
     const index = list.findIndex(item => item.id === messageId)
     list[index].likeNum = likeCount
     list[index].likeFlag = likeFlag
-    //先删再写人
-    await store.delete(videoId)
     await store.put(videoId, JSON.stringify(list))
     await store.flush()
   }
