@@ -1,8 +1,11 @@
-interface ResourceBase {
-  uri: string;
-  url_list: string[];
+interface Base {
   width: number;
   height: number;
+}
+
+interface ResourceBase extends Base {
+  uri: string;
+  url_list: string[];
 }
 
 interface PlayableResourceBase extends ResourceBase {
@@ -13,9 +16,11 @@ interface PlayableResourceBase extends ResourceBase {
 }
 
 interface MusicCover extends ResourceBase {}
+
 interface VideoCover extends ResourceBase {}
 
 interface MusicPlayUrl extends PlayableResourceBase {}
+
 interface VideoPlayAddr extends PlayableResourceBase {
   data_size: number; // 覆盖为必选字段
   file_hash: string;
@@ -36,12 +41,10 @@ interface Music {
   is_original: boolean;
 }
 
-interface Video {
+interface Video extends Base {
   play_addr: VideoPlayAddr;
   cover: VideoCover;
   poster: string;
-  height: number;
-  width: number;
   ratio: string;
   use_static_cover: boolean;
   duration: number;
