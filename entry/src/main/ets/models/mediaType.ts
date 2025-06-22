@@ -1,19 +1,25 @@
-interface MusicCover {
+interface ResourceBase {
   uri: string;
   url_list: string[];
   width: number;
   height: number;
 }
 
-interface MusicPlayUrl {
-  uri: string;
-  url_list: string[];
-  width: number;
-  height: number;
+interface PlayableResourceBase extends ResourceBase {
   url_key: string;
-  data_size?: number; // 可选字段
-  file_hash?: string; // 可选字段
-  file_cs?: string; // 可选字段
+  data_size?: number;
+  file_hash?: string;
+  file_cs?: string;
+}
+
+interface MusicCover extends ResourceBase {}
+interface VideoCover extends ResourceBase {}
+
+interface MusicPlayUrl extends PlayableResourceBase {}
+interface VideoPlayAddr extends PlayableResourceBase {
+  data_size: number; // 覆盖为必选字段
+  file_hash: string;
+  file_cs: string;
 }
 
 interface Music {
@@ -28,24 +34,6 @@ interface Music {
   owner_id: string;
   owner_nickname: string;
   is_original: boolean;
-}
-
-interface VideoPlayAddr {
-  uri: string;
-  url_list: string[];
-  width: number;
-  height: number;
-  url_key: string;
-  data_size: number;
-  file_hash: string;
-  file_cs: string;
-}
-
-interface VideoCover {
-  uri: string;
-  url_list: string[];
-  width: number;
-  height: number;
 }
 
 interface Video {
