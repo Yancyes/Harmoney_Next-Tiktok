@@ -2,7 +2,7 @@ import { commentDataModel, mediaType, sideData, sideDataModel } from '../models'
 import { common, Constants, tipDialog } from '../common'
 import { Comment, ImgComp, LikeTextCount, ReplyBox, ReplyInput } from '.'
 import { util } from '@kit.ArkTS'
-import { tiktokChatStory } from '../utils'
+import { tiktokChatStory, TiktokCollection } from '../utils'
 
 /**
  * 视频功能侧边栏*/
@@ -14,13 +14,13 @@ struct Sidebar {
   item: mediaType //视频数据
   @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
 
-  changeLike() {
-    if (this.sideDataList[0].isLike) {
-      this.sideDataList[0].Num!++
+  changeState(value: number) {
+    if (this.sideDataList[value].isLike) {
+      this.sideDataList[value].Num!++
     } else {
-      this.sideDataList[0].Num!--
+      this.sideDataList[value].Num!--
     }
-    this.sideDataList[0].isLike = !this.sideDataList[0].isLike
+    this.sideDataList[value].isLike = !this.sideDataList[value].isLike
   }
 
   @StorageLink(Constants.SCALE_SIZE) scaleSize: number = 1
@@ -44,7 +44,7 @@ struct Sidebar {
       Num: this.item.statistics.digg_count,
       isLike: false,
       click: () => {
-        this.changeLike()
+        this.changeState(0)
       }
     }),
     new sideDataModel({
@@ -61,8 +61,14 @@ struct Sidebar {
       name: '收藏',
       imgUrl: $r('app.media.collect'),
       Num: this.item.statistics.comment_count,
+      isLike: false,
       click: () => {
-        tipDialog()
+        if (TiktokCollection.hasCollection(this.item) === true) {
+          TiktokCollection.delCollection(this.item)
+        } else {
+          TiktokCollection.addCollection(this.item)
+        }
+        this.changeState(2)
       }
     }),
     new sideDataModel({
@@ -160,6 +166,7 @@ struct Sidebar {
   }
 
   aboutToAppear(): void {
+    TiktokCollection.Context = this.getUIContext().getHostContext() as Context
     //获取评论数据
     this.commentList = tiktokChatStory.getOneTiktokVideoAllComment(this.item.video.play_addr.uri)
   }

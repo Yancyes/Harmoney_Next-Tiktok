@@ -13,14 +13,14 @@ export interface commentData {
 
 @Observed
 export class commentDataModel implements commentData {
-  avatar: ResourceStr = ''
-  id: string | number = ''
-  content: string = ''
-  time: string = ''
-  author: string = ''
-  area: string = ''
-  likeNum: number = 0
-  likeFlag: boolean = false
+  @Track avatar: ResourceStr = ''
+  @Track id: string | number = ''
+  @Track content: string = ''
+  @Track time: string = ''
+  @Track author: string = ''
+  @Track area: string = ''
+  @Track likeNum: number = 0
+  @Track likeFlag: boolean = false
 
   constructor(model: commentData) {
     this.avatar = model.avatar

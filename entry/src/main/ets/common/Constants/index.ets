@@ -41,11 +41,12 @@ export class Constants {
    * 加载商品页*/
   static readonly LOADING_SHOP = "pages/Shop/ShopPage"
   /**
-   * 加载视频详情页*/
-  static readonly LOADING_VdDETAIL = "pages/My/VdDetail"
-  /**
    * 商品详情页*/
   static readonly SHOP_DETAIL = "pages/Shop/ShopDetailPage"
+  /**
+   * 视频详情页
+   */
+  static readonly VIDEO_DETAIL = "components/VideoComp"
   /**
    * 我的页面 视频背景图片地址*/
   static readonly GET_VIDEO_IMG_URL = "get_Video_Img_Url"
@@ -61,4 +62,8 @@ export class Constants {
   /**
    * 视频缩放 */
   static readonly SCALE_SIZE = "scaleSize"
+  /**
+   * 视频收藏
+   */
+  static readonly GLOBAL_VIDEO_COLLECTION = "Global_video_collection"
 }

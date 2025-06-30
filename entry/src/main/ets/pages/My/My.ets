@@ -1,9 +1,10 @@
-import { BarClass, MyPageOwnInfo, UserInfoModel } from '../../models'
+import { BarClass, mediaType, MyPageOwnInfo, UserInfoModel } from '../../models'
 import { router } from '@kit.ArkUI'
 import { tiktok } from '../../utils/setting'
 import { tipDialog } from '../../common'
 import { iconBtn, ImgComp, scrollbar, TitleTipBtn, VideoGrid } from '../../components'
 import { Constants } from '../../common/Constants'
+import { TiktokCollection } from '../../utils'
 
 @Component
 export default struct MyPage {
@@ -18,9 +19,9 @@ export default struct MyPage {
   }
 
   //背景视频地址
-  @StorageProp(Constants.GET_VIDEO_IMG_URL)
+  @State
   videoBgUrl: string = ''
-
+  @State video_collection: mediaType[] = []
   @Styles
   imgBg(){
     .width(16).height(16)
@@ -278,7 +279,7 @@ export default struct MyPage {
                   } else if (index === 2) {
                     VideoGrid()
                   } else if (index === 3) {
-                    VideoGrid()
+                    VideoGrid({data:this.video_collection})
                   } else {
                     VideoGrid()
                   }
@@ -314,6 +315,11 @@ export default struct MyPage {
     }
     .scrollBar(BarState.Off)
     .height('120%')
+    .onVisibleAreaChange([0,1],()=>{
+      this.videoBgUrl = AppStorage.get(Constants.GET_VIDEO_IMG_URL)!
+      //添加收藏数据
+      this.video_collection = TiktokCollection.getCollectionData()
+    })
     //修改整个页面的坐标
     .onClick(() => {
       animateTo({ duration: 200 }, () => {

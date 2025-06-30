@@ -3,7 +3,7 @@ import { Sidebar, VideoDescribe } from '.'
 import { common, Constants } from '../common'
 import { emitter } from '@kit.BasicServicesKit'
 import { display } from '@kit.ArkUI'
-
+@Entry
 @Reusable
 @Component
 export struct VideoComp {
@@ -19,7 +19,7 @@ export struct VideoComp {
   item: mediaType
   /**
    * 播放的索引*/
-  @Consume
+  @Link
   @Watch('updateActiveIndex')
   activeIndex: number
   /**
@@ -107,6 +107,11 @@ export struct VideoComp {
   }
 
   aboutToAppear() {
+    const item = this.ctx.getRouter().getParams() as mediaType
+    if(item){
+      this.item = item
+    }
+
     AppStorage.setOrCreate(Constants.SCALE_SIZE, this.scaleSize)
     this.screenHeight = this.ctx.px2vp(display.getDefaultDisplaySync().height)
     this.screenWidth = this.ctx.px2vp(display.getDefaultDisplaySync().width)

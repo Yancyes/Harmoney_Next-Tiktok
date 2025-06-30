@@ -1,4 +1,4 @@
-import { common } from "../common"
+import { common } from '../common'
 
 /** 主页侧边栏数据接口*/
 export interface sideData {
@@ -11,11 +11,11 @@ export interface sideData {
 
 @Observed
 export class sideDataModel implements sideData {
-  name: string = ''
-  imgUrl: ResourceStr = ''
-  Num?: number = 0
+  @Track name: string = ''
+  @Track imgUrl: ResourceStr = ''
+  @Track Num?: number = 0
   click: () => void
-  isLike?: boolean = false
+  @Track isLike?: boolean = false
 
   constructor(model: sideData) {
     this.name = model.name

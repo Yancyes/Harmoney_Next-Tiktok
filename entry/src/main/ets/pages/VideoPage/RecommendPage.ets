@@ -11,7 +11,7 @@ import { DataSource, mediaType } from '../../models'
 struct RecommendPage {
   /**
    * 索引*/
-  @Provide
+  @State
   activeIndex: number = 0
   /**
    * 懒加载视频数据列表*/
@@ -38,7 +38,8 @@ struct RecommendPage {
         LazyForEach(this.videoList, (item: mediaType, index: number) => {
           VideoComp({
             item,
-            index
+            index,
+            activeIndex:this.activeIndex
           })
         })
       }
