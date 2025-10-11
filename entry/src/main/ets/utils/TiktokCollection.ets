@@ -25,12 +25,10 @@ export class TiktokCollection {
   static async addCollection(item: mediaType) {
     const store = TiktokCollection.getStore()
     const list = TiktokCollection.getCollectionData()
-    if (!TiktokCollection.hasCollection(item)) {
-      list.unshift(item)
-      store.putSync(Constants.GLOBAL_VIDEO_COLLECTION, JSON.stringify(list))
-      await store.flush()
-      tipDialog("收藏成功", 1500, Alignment.Center)
-    }
+    list.unshift(item)
+    store.putSync(Constants.GLOBAL_VIDEO_COLLECTION, JSON.stringify(list))
+    await store.flush()
+    tipDialog("收藏成功", 1500, Alignment.Center)
   }
 
   /**
@@ -40,13 +38,10 @@ export class TiktokCollection {
   static async delCollection(item: mediaType) {
     const store = TiktokCollection.getStore()
     const list = TiktokCollection.getCollectionData()
-    if (TiktokCollection.hasCollection(item)) {
-      list.splice(list.findIndex(obj => obj === item), 1)
-      store.putSync(Constants.GLOBAL_VIDEO_COLLECTION, JSON.stringify(list))
-      await store.flush()
-    } else {
-      tipDialog('已取消收藏', 1500, Alignment.Center)
-    }
+    list.splice(list.findIndex(obj => obj === item), 1)
+    store.putSync(Constants.GLOBAL_VIDEO_COLLECTION, JSON.stringify(list))
+    await store.flush()
+    tipDialog('已取消收藏', 1500, Alignment.Center)
   }
 
   /**
@@ -56,10 +51,6 @@ export class TiktokCollection {
    */
   static hasCollection(item: mediaType) {
     const list = TiktokCollection.getCollectionData()
-    if (list.includes(item)) {
-      return true
-    } else {
-      return false
-    }
+    return list.includes(item) ? true : false
   }
 }

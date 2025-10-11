@@ -63,11 +63,8 @@ struct Sidebar {
       Num: this.item.statistics.comment_count,
       isLike: false,
       click: () => {
-        if (TiktokCollection.hasCollection(this.item) === true) {
-          TiktokCollection.delCollection(this.item)
-        } else {
+        TiktokCollection.hasCollection(this.item) ? TiktokCollection.delCollection(this.item) :
           TiktokCollection.addCollection(this.item)
-        }
         this.changeState(2)
       }
     }),
