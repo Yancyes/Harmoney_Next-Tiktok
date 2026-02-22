@@ -5,8 +5,10 @@ import { cities } from '../../models'
 import { Constants } from '../Constants'
 import { util } from '@kit.ArkTS'
 import { tiktok } from '../../utils'
-
-
+import { preferences } from '@kit.ArkData'
+export type P = preferences.Preferences
+export type P_O = preferences.Options
+export type C = Context
 /**
  * 提示弹窗
  * @param {String} msg传入需要的提示信息
@@ -87,6 +89,14 @@ class commonFn {
    * @param m 最大值*/
   creteUserID(n: number, m: number): number {
     return Math.floor(Math.random() * (n + 1)) + m
+  }
+  /**
+   * 获取本地存储数据
+   * @param C 上下文
+   * @param option 选项
+   * */
+  getStore(C:Context, option: P_O){
+    return preferences.getPreferencesSync(C, option)
   }
 }
 

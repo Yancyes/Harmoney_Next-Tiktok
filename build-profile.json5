@@ -1,18 +1,32 @@
 {
   "app": {
     "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\张杨熙\\.ohos\\config\\default_dyin2_W2zs1qQfHqrmIOdIaXspbc45h_q-C_pJddaBfWrSbt8=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001BBAE063798628D5E8C7C89BB1B9B8D8AD03C21C5004DDCF9B187A558FB6DB11DB4A6066D37CA4E6",
+          "profile": "C:\\Users\\张杨熙\\.ohos\\config\\default_dyin2_W2zs1qQfHqrmIOdIaXspbc45h_q-C_pJddaBfWrSbt8=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\张杨熙\\.ohos\\config\\default_dyin2_W2zs1qQfHqrmIOdIaXspbc45h_q-C_pJddaBfWrSbt8=.p12",
+          "storePassword": "0000001B1ECAA72D38E925772CBC91D2EF49796DFFCB9B78362CCB03736F9180C097DADF26CCFEF547A13D"
+        }
+      }
     ],
     "products": [
       {
         "name": "default",
         "signingConfig": "default",
-        "compatibleSdkVersion": "5.1.0(18)",
-        "runtimeOS": "HarmonyOS"
+        "compatibleSdkVersion": "6.0.2(22)",
+        "runtimeOS": "HarmonyOS",
+        "targetSdkVersion": "6.0.2(22)"
       }
     ],
     "buildModeSet": [
       {
-        "name": "debug",
+        "name": "debug"
       },
       {
         "name": "release"
