@@ -1,24 +1,25 @@
-import { TIKTOK_CONNECT, CURRENT_USER, UserRecord_KEY, STORY } from '../constants'
-import { preferences } from '@kit.ArkData'
+import { CURRENT_USER, STORY, TIKTOK_CONNECT, UserRecord_KEY } from '../constants'
 import { CurrentUser, defaultUserInfo, UserInfo, UserInfoModel } from '../models/user'
 import { MessageInfoModel } from '../models/message'
+import { C, common, P } from '../common/Function/commonFn'
 
 
 /**
  * 首选项仓库
  * */
 export class Tiktok {
-  //上下文
-  context?: Context
+
+  context: C
 
   constructor(ctx: Context) {
     this.context = ctx
   }
 
-  getStore() {
-    return preferences.getPreferencesSync(this.context || getContext(), {
-      name: STORY  //仓库名
+  getStore():P {
+    return common.getStore(this.context,{
+      name: STORY
     })
+
   }
   /**
    * 获取用户信息*/
