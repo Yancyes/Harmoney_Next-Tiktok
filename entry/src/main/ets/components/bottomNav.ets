@@ -1,5 +1,5 @@
 import { Colm, customDialog, ImgComp, TitleBtn, TopBar } from '.'
-import { common, Constants, tipDialog } from '../common'
+import { C, common, Constants, tipDialog } from '../common'
 import { BarClass, TabList } from '../models'
 import { UserInfo, UserInfoModel } from '../models/user'
 import { MessagePage } from '../pages/Message/MessagePage'
@@ -75,7 +75,7 @@ export struct bottomNav {
   @Provide
   dialogBgColor: ResourceColor = '' //修改渐变背景色只能通过#00000000的方式
   @Provide
-  info: UserInfoModel = new Tiktok(getContext()).getCurrentUser()
+  info: UserInfoModel = new Tiktok(AppStorage.get('C') as C).getCurrentUser()
   @Consume
   IndexX: number | string //整个index页面的x坐标
   @Provide

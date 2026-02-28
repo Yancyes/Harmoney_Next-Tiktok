@@ -1,7 +1,7 @@
 import { BarClass } from '../../models'
 import { bottomNav, Card, CardItem, iconContent, SideBarCom } from '../../components'
 import { router } from '@kit.ArkUI'
-import { tipDialog } from '../../common/Function/commonFn'
+import { C, tipDialog } from '../../common/Function/commonFn'
 import { common } from '@kit.AbilityKit'
 import { Constants } from '../../common/Constants'
 
@@ -427,7 +427,9 @@ struct Index {
       })
     }
   }
-
+ aboutToAppear(): void {
+   AppStorage.setOrCreate('C',this.getUIContext().getHostContext() as C)
+ }
   build() {
     Column() {
       //底部导航栏

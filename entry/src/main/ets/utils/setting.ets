@@ -9,9 +9,9 @@ import { C, common, P } from '../common/Function/commonFn'
  * */
 export class Tiktok {
 
-  context: C
+  private context: C
 
-  constructor(ctx: Context) {
+  constructor(ctx: C) {
     this.context = ctx
   }
 

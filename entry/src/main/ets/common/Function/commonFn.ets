@@ -95,7 +95,7 @@ class commonFn {
    * @param C 上下文
    * @param option 选项
    * */
-  getStore(C:Context, option: P_O){
+  getStore(C:C, option: P_O){
     return preferences.getPreferencesSync(C, option)
   }
 }

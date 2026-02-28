@@ -166,7 +166,7 @@ struct Sidebar {
   }
 
   aboutToAppear(): void {
-    TiktokCollection.Context = this.getUIContext().getHostContext() as C
+    TiktokCollection.Context = AppStorage.get('C') as C
     //获取评论数据
     this.commentList = tiktokChatStory.getOneTiktokVideoAllComment(this.item.video.play_addr.uri)
   }
