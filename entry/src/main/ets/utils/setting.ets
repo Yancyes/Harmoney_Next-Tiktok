@@ -2,7 +2,10 @@ import { CURRENT_USER, STORY, TIKTOK_CONNECT, UserRecord_KEY } from '../constant
 import { CurrentUser, defaultUserInfo, UserInfo, UserInfoModel } from '../models/user'
 import { MessageInfoModel } from '../models/message'
 import { C, common, P } from '../common/Function/commonFn'
+import { preferences } from '@kit.ArkData'
 
+type U = UserInfoModel
+type M = MessageInfoModel
 
 /**
  * 首选项仓库
@@ -19,7 +22,11 @@ export class Tiktok {
     return common.getStore(this.context,{
       name: STORY
     })
+  }
 
+  getData<T>(key: string, value: preferences.ValueType):T{
+    const Store = this.getStore()
+    return JSON.parse(Store.getSync(key, JSON.stringify(value)) as string) as T
   }
   /**
    * 获取用户信息*/
@@ -27,11 +34,11 @@ export class Tiktok {
     const Store = this.getStore()
     return Store.getSync(CURRENT_USER, CurrentUser)
   }
+
   /**
    * 获取抖音联系人*/
   getTikTokConnect() {
-    const Store = this.getStore()
-    return JSON.parse(Store.getSync(TIKTOK_CONNECT, JSON.stringify(defaultUserInfo)) as string) as UserInfoModel[]
+    return this.getData<U[]>(TIKTOK_CONNECT, defaultUserInfo)
   }
 
   async setCurrentUser(token: string) {
@@ -43,10 +50,9 @@ export class Tiktok {
   /**
    * 获取当前用户*/
   getCurrentUser() {
-    const Store = this.getStore()
     //如果首选项的用户数据是空字符串返回相关数据
     return this.getUserInfo()?
-      JSON.parse(Store.getSync(CURRENT_USER, JSON.stringify(CurrentUser)) as string) as UserInfoModel :
+      this.getData<U>(CURRENT_USER,CurrentUser) :
       //首次进入程序首选项没有任何数据返回一个空对象 防止出现无法进入程序等报错
       new UserInfoModel({} as UserInfo)
   }
@@ -56,8 +62,7 @@ export class Tiktok {
    * 获取'我'和某个用户的整个的聊天记录 userid对话者的id
    * */
   getChatMessage(userId: string) { //UserRecord_userid=>所有的聊天记录
-    const store = this.getStore()
-    return JSON.parse(store.getSync(`${UserRecord_KEY}_${userId}`, '[]') as string) as MessageInfoModel[]
+    return this.getData<M[]>(`${UserRecord_KEY}_${userId}`, '[]')
   }
 
   /**
@@ -70,7 +75,7 @@ export class Tiktok {
 
   /**
    * 添加一条"我"和某个人的聊天记录*/
-  async addOwnChatMessage(userId: string, message: MessageInfoModel) {
+  async addOwnChatMessage(userId: string, message: M) {
     const store = this.getStore()
     const list = this.getChatMessage(userId) //拿到所有的所有的聊天记录
     // 写入list
@@ -95,13 +100,13 @@ export class Tiktok {
    * 获取所有人的最后的一条聊天记录的集合*/
   getAllLastRecord() {
     const store = this.getStore()
-    const arr: MessageInfoModel[] = []
+    const arr: M[] = []
     const result = store.getAllSync() as object
     Object.keys(result).forEach(key => {
       if (key.includes(UserRecord_KEY)) {
         //key对应的value
         if (result[key]) {
-          const list = JSON.parse(result[key]) as MessageInfoModel[] //所有的聊天记录
+          const list = JSON.parse(result[key]) as M[] //所有的聊天记录
           if (list.length) {
             arr.push(list[list.length-1])
 
@@ -110,7 +115,7 @@ export class Tiktok {
       }
     })
     //按照时间排序
-    arr.sort((a: MessageInfoModel, b: MessageInfoModel) => {
+    arr.sort((a: M, b: M) => {
       return b.sendTime - a.sendTime
     }) //会对原数组排序
     return arr
