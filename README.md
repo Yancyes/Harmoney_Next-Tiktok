@@ -36,6 +36,6 @@
 
 #### 参与贡献
 
-Author: 张杨熙
+Author: Yancy
 Email: 2362576803@qq.com
 
