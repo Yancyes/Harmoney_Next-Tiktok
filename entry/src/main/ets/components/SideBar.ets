@@ -1,5 +1,5 @@
 import { commentDataModel, mediaType, sideData, sideDataModel } from '../models'
-import { common, Constants, tipDialog } from '../common'
+import { C, common, Constants, tipDialog } from '../common'
 import { Comment, ImgComp, LikeTextCount, ReplyBox, ReplyInput } from '.'
 import { util } from '@kit.ArkTS'
 import { tiktokChatStory, TiktokCollection } from '../utils'
@@ -166,6 +166,7 @@ struct Sidebar {
   }
 
   aboutToAppear(): void {
+    TiktokCollection.Context = AppStorage.get('C') as C
     //获取评论数据
     this.commentList = tiktokChatStory.getOneTiktokVideoAllComment(this.item.video.play_addr.uri)
   }

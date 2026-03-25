@@ -1,14 +1,13 @@
-import { preferences } from '@kit.ArkData'
 import { Constants } from '../common/Constants'
-import { tipDialog } from '../common/Function/commonFn'
+import { C, common, P, tipDialog } from '../common/Function/commonFn'
 import { mediaType } from '../models'
 
 export class TiktokCollection {
   private static storeName = 'TiktokCollection-Store'
-  static Context: Context
+  static Context: C
 
-  private static getStore() {
-    return preferences.getPreferencesSync(TiktokCollection.Context, {
+  private static getStore(): P {
+    return common.getStore(TiktokCollection.Context, {
       name: TiktokCollection.storeName
     })
   }
@@ -42,15 +41,5 @@ export class TiktokCollection {
     store.putSync(Constants.GLOBAL_VIDEO_COLLECTION, JSON.stringify(list))
     await store.flush()
     tipDialog('已取消收藏', 1500, Alignment.Center)
-  }
-
-  /**
-   * 检测是否收藏
-   * @param item 视频
-   * @return boolean
-   */
-  static hasCollection(item: mediaType) {
-    const list = TiktokCollection.getCollectionData()
-    return list.includes(item) ? true : false
   }
 }

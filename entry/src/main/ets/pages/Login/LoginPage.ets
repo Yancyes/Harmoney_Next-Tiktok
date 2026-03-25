@@ -1,7 +1,7 @@
 import { UserInfo, UserInfoModel } from '../../models/index'
 import { router } from '@kit.ArkUI'
 import { CURRENT_USER } from '../../constants'
-import { Tiktok } from '../../utils/setting'
+import { tiktok } from '../../utils/setting'
 import { userData } from '../../api'
 import { Constants, common, tipDialog } from '../../common'
 
@@ -47,11 +47,8 @@ struct LoginPage {
   } as UserInfo)
 
   watchIpt() {
-    if (this.userInfo.username.length < 6 || this.userInfo.password.length < 6) {
-      this.showText = true
-    } else {
-      this.showText = false
-    }
+    this.userInfo.username.length < 6 || this.userInfo.password.length < 6
+      ? this.showText = true : this.showText = false
   }
 
   //初始化时自动获取一些基本数据
@@ -73,7 +70,6 @@ struct LoginPage {
     } else {
       this.loading = true
 
-      //750毫秒后执行该异步任务
       setTimeout(async () => {
         //token就是用户信息数据
         const token = userData(this.userInfo)
@@ -87,7 +83,7 @@ struct LoginPage {
             user_id: this.userInfo.user_id,
             content: this.userInfo.content
           })) //写入全局状态
-          await new Tiktok(getContext()).setCurrentUser(token) //写入首选项
+          await tiktok.setCurrentUser(token) //写入首选项
           this.loading = false
           router.replaceUrl({ url: Constants.LOADING_INDEX })
         } else {

@@ -90,6 +90,14 @@ class commonFn {
   creteUserID(n: number, m: number): number {
     return Math.floor(Math.random() * (n + 1)) + m
   }
+  /**
+   * 获取本地存储数据
+   * @param C 上下文
+   * @param option 选项
+   * */
+  getStore(C:C, option: P_O){
+    return preferences.getPreferencesSync(C, option)
+  }
 }
 
 const common = new commonFn()
