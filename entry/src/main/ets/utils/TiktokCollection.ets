@@ -1,13 +1,13 @@
 import { Constants } from '../common/Constants'
-import { C, common, P, tipDialog } from '../common/Function/commonFn'
+import { C, P, tipDialog } from '../common/Function/commonFn'
 import { mediaType } from '../models'
+import { preferences } from '@kit.ArkData'
 
 export class TiktokCollection {
   private static storeName = 'TiktokCollection-Store'
-  static Context: C
 
   private static getStore(): P {
-    return common.getStore(TiktokCollection.Context, {
+    return preferences.getPreferencesSync(getContext(), {
       name: TiktokCollection.storeName
     })
   }
