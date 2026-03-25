@@ -4,6 +4,13 @@ import { Comment, ImgComp, LikeTextCount, ReplyBox, ReplyInput } from '.'
 import { util } from '@kit.ArkTS'
 import { tiktokChatStory, TiktokCollection } from '../utils'
 
+enum sideList {
+  like,
+  comment,
+  collect,
+  share
+}
+
 /**
  * 视频功能侧边栏*/
 @Component
@@ -14,12 +21,8 @@ struct Sidebar {
   item: mediaType //视频数据
   @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
 
-  changeState(value: number) {
-    if (this.sideDataList[value].isLike) {
-      this.sideDataList[value].Num!++
-    } else {
-      this.sideDataList[value].Num!--
-    }
+  changeState(value: sideList) {
+    this.sideDataList[value].isLike ? this.sideDataList[value].Num!++ : this.sideDataList[value].Num!--
     this.sideDataList[value].isLike = !this.sideDataList[value].isLike
   }
 
@@ -44,7 +47,7 @@ struct Sidebar {
       Num: this.item.statistics.digg_count,
       isLike: false,
       click: () => {
-        this.changeState(0)
+        this.changeState(sideList.like)
       }
     }),
     new sideDataModel({
@@ -63,9 +66,9 @@ struct Sidebar {
       Num: this.item.statistics.comment_count,
       isLike: false,
       click: () => {
-        TiktokCollection.hasCollection(this.item) ? TiktokCollection.delCollection(this.item) :
+        this.sideDataList[sideList.collect].isLike === true ? TiktokCollection.delCollection(this.item) :
           TiktokCollection.addCollection(this.item)
-        this.changeState(2)
+        this.changeState(sideList.collect)
       }
     }),
     new sideDataModel({
@@ -163,7 +166,6 @@ struct Sidebar {
   }
 
   aboutToAppear(): void {
-    TiktokCollection.Context = this.getUIContext().getHostContext() as Context
     //获取评论数据
     this.commentList = tiktokChatStory.getOneTiktokVideoAllComment(this.item.video.play_addr.uri)
   }

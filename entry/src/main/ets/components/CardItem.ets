@@ -5,7 +5,7 @@ import { Constants } from '../common/Constants'
 
 @Component
 export struct CardItem {
-  icon: string | ResourceStr = ""
+  icon: ResourceStr = ""
   leftTitle: string = ""
   rightContent?: string = ""
 

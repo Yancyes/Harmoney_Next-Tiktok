@@ -68,7 +68,7 @@ export struct TopBar {
    * 进入搜索页*/
   clickSearch() {
     router.pushUrl({
-      url: 'pages/Search/SearchPage',
+      url: Constants.LOADING_SEARCH,
       params: {
         name: "搜你想看的"
       }

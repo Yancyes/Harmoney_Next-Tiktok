@@ -9,7 +9,7 @@ export class TikTokEmitter {
    * @param {Boolean} value true 播放 false 暂停
    * */
   static Emitter_VideoCrl = (value: boolean) => {
-    return value ? emitter.emit(Constants.GLOBAL_VIDEO_CONTROLLER_PLAYER) :
-    emitter.emit(Constants.GLOBAL_VIDEO_CONTROLLER_PAUSE)
+    value ? emitter.emit(Constants.GLOBAL_VIDEO_CONTROLLER_PLAYER) :
+      emitter.emit(Constants.GLOBAL_VIDEO_CONTROLLER_PAUSE)
   }
 }

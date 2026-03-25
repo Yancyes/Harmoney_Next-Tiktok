@@ -5,8 +5,10 @@ import { cities } from '../../models'
 import { Constants } from '../Constants'
 import { util } from '@kit.ArkTS'
 import { tiktok } from '../../utils'
-
-
+import { preferences } from '@kit.ArkData'
+export type P = preferences.Preferences
+export type P_O = preferences.Options
+export type C = Context
 /**
  * 提示弹窗
  * @param {String} msg传入需要的提示信息
