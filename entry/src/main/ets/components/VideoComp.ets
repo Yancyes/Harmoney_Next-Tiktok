@@ -3,7 +3,6 @@ import { Sidebar, VideoDescribe } from '.'
 import { common, Constants } from '../common'
 import { emitter } from '@kit.BasicServicesKit'
 import { display } from '@kit.ArkUI'
-@Entry
 @Reusable
 @Component
 export struct VideoComp {
