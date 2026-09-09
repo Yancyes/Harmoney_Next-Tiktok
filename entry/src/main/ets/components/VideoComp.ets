@@ -218,16 +218,14 @@ export struct VideoComp {
               this.isShowRightSideBar = false
             }
             const condition = this.videoPlayProgress < this.videoTotalDuration
-            //手指在屏幕左侧
-            if (e.fingerList[0].globalX < this.screenWidth / 2) {
-              if (this.videoPlayProgress > 0 && condition) {
-                //设置进度
-                this.videoController.setCurrentTime(this.videoPlayProgress--)
-              }
-            } else {
-              if (condition) {
-                //设置进度
-                this.videoController.setCurrentTime(this.videoPlayProgress++)
+            if(condition){
+              //手指在屏幕左侧
+              if (e.fingerList[0].globalX < this.screenWidth / 2) {
+                if (this.videoPlayProgress > 0) {
+                  this.videoController.setCurrentTime(this.videoPlayProgress--)
+                }
+              } else {
+                  this.videoController.setCurrentTime(this.videoPlayProgress++)
               }
             }
           })
