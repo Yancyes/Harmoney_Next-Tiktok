@@ -3,6 +3,7 @@ import { Sidebar, VideoDescribe } from '.'
 import { common, Constants } from '../common'
 import { emitter } from '@kit.BasicServicesKit'
 import { display } from '@kit.ArkUI'
+
 @Reusable
 @Component
 export struct VideoComp {
@@ -63,6 +64,7 @@ export struct VideoComp {
   @State screenHeight: number = 0
   @State screenWidth: number = 0
   ctx = this.getUIContext()
+
   /**
    * 更新切换索引的状态*/
   updateActiveIndex() {
@@ -107,7 +109,7 @@ export struct VideoComp {
 
   aboutToAppear() {
     const item = this.ctx.getRouter().getParams() as mediaType
-    if(item){
+    if (item) {
       this.item = item
     }
 
@@ -146,12 +148,15 @@ export struct VideoComp {
     })
   }
 
-
   format(num: number) {
     const totalSeconds = Math.floor(num)
     const minutes = Math.floor(totalSeconds / 60)
     const secs = totalSeconds % 60
     return common.toStr(minutes) + ':' + common.toStr(secs)
+  }
+
+  setVideoProgress(value: number) {
+    this.videoController.setCurrentTime(value)
   }
 
   build() {
@@ -218,14 +223,14 @@ export struct VideoComp {
               this.isShowRightSideBar = false
             }
             const condition = this.videoPlayProgress < this.videoTotalDuration
-            if(condition){
+            if (condition) {
               //手指在屏幕左侧
               if (e.fingerList[0].globalX < this.screenWidth / 2) {
                 if (this.videoPlayProgress > 0) {
-                  this.videoController.setCurrentTime(this.videoPlayProgress--)
+                  this.setVideoProgress(this.videoPlayProgress--)
                 }
               } else {
-                  this.videoController.setCurrentTime(this.videoPlayProgress++)
+                this.setVideoProgress(this.videoPlayProgress++)
               }
             }
           })
