@@ -38,18 +38,14 @@ export struct TopBar {
         .lineCap(LineCapStyle.Butt)
         .width(this.topNavCurrentIndex === index ? 30 : 0)
         .color(this.topTabList[this.topNavCurrentIndex].name === 'SHOP' ? Color.Black :
-        Color.White)
+          Color.White)
     }
     .onClick(() => {
       //通过name找到索引
       const index = this.topTabList.findIndex(obj => obj.name === item.name)
       this.tabController.changeIndex(index) //切换索引值
       //如果不是推荐页暂停播放
-      if (index !== this.topTabList.length - 1) {
-        this.pauseVideo()
-      } else {
-        this.startVideo()
-      }
+      index !== this.topTabList.length - 1 ? this.pauseVideo() : this.startVideo()
     })
   }
 
