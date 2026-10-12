@@ -1,6 +1,5 @@
 import { BarClass, DataSource, ListIndexPosition, TabList } from '../models'
 import Shop from '../pages/Shop/ShopPage'
-import { router } from '@kit.ArkUI'
 import { Colm, HeadBar } from '.'
 import { Constants } from '../common'
 import RecommendPage from '../pages/VideoPage/RecommendPage'
@@ -52,7 +51,7 @@ export struct TopBar {
   /**
    * 打开左侧边栏*/
   openLeftSideBar() {
-    animateTo({ duration: 200 }, () => {
+    this.getUIContext().animateTo({ duration: 200 }, () => {
       this.showDialog = !this.showDialog
       this.dialogBgColor = '#80000000'
       //更改坐标轴
@@ -63,7 +62,7 @@ export struct TopBar {
   /**
    * 进入搜索页*/
   clickSearch() {
-    router.pushUrl({
+    this.getUIContext().getRouter().pushUrl({
       url: Constants.LOADING_SEARCH,
       params: {
         name: "搜你想看的"
@@ -79,7 +78,7 @@ export struct TopBar {
   private BarMainContentWidth: number = AppStorage.get(Constants.SCREEN_WIDTH) as number - 100
   /**
    * 顶部列表滚动控制器*/
-  private classifyScroller: Scroller = new Scroller() //
+  private classifyScroller: Scroller = new Scroller()
   /**
    * 顶部栏列表可视区域的起始索引和终点索引*/
   tagIndexPosition: ListIndexPosition = { start: 0, end: 0 } // 一级列表可视区域的起始索引和终点索引
