@@ -2,6 +2,7 @@ import { common, tipDialog } from '../../common'
 import { Skeleton, VideoComp } from '../../components'
 import { DataSource, mediaType } from '../../models'
 
+const videoDataResource = 'videos.json'
 
 /**
  * 推荐页
@@ -19,7 +20,7 @@ struct RecommendPage {
   videoList: DataSource<mediaType> | null = null
 
   getVideoData() {
-    const data = common.getJsonFileData('videos.json')
+    const data = common.getJsonFileData(videoDataResource)
     return JSON.parse(data) as mediaType[]
   }
 
