@@ -1,5 +1,4 @@
 import { BarClass, mediaType, MyPageOwnInfo, UserInfoModel } from '../../models'
-import { router } from '@kit.ArkUI'
 import { tiktok } from '../../utils/setting'
 import { tipDialog } from '../../common'
 import { iconBtn, ImgComp, scrollbar, TitleTipBtn, VideoGrid } from '../../components'
@@ -22,6 +21,7 @@ export default struct MyPage {
   @State
   videoBgUrl: string = ''
   @State video_collection: mediaType[] = []
+
   @Styles
   imgBg(){
     .width(16).height(16)
@@ -43,9 +43,7 @@ export default struct MyPage {
   private MyOwnInfo: BarClass[] = [
     {
       icon: $r('app.media.icon_shopCar'), title: '抖音商城', click: () => {
-      router.pushUrl({
-        url: Constants.LOADING_SHOP
-      })
+      this.getUIContext().getRouter().pushUrl({ url: Constants.LOADING_SHOP })
     }
     },
     {
@@ -75,7 +73,7 @@ export default struct MyPage {
     },
     {
       icon: $r('app.media.icon_moreFn'), title: '查看更多', click: () => {
-      animateTo({ duration: 200 }, () => {
+      this.getUIContext().animateTo({ duration: 200 }, () => {
         this.openRightSideBar()
       })
     }
@@ -144,7 +142,7 @@ export default struct MyPage {
             Row({ space: 20 }) {
               TitleTipBtn({
                 w: 90,
-                op:1,
+                op: 1,
                 img: () => {
                   this.newPerson()
                 },
@@ -155,7 +153,7 @@ export default struct MyPage {
               //搜索和功能按钮区
               Row({ space: 10 }) {
                 TitleTipBtn({
-                  op:1,
+                  op: 1,
                   img: () => {
                     this.search()
                   }
@@ -163,12 +161,12 @@ export default struct MyPage {
                   tipDialog()
                 })
                 TitleTipBtn({
-                  op:1,
+                  op: 1,
                   img: () => {
                     this.iconTab()
                   }
                 }).onClick(() => {
-                  animateTo({ duration: 200 }, () => {
+                  this.getUIContext().animateTo({ duration: 200 }, () => {
                     this.openRightSideBar()
                   })
                 })
@@ -279,7 +277,7 @@ export default struct MyPage {
                   } else if (index === 2) {
                     VideoGrid()
                   } else if (index === 3) {
-                    VideoGrid({data:this.video_collection})
+                    VideoGrid({ data: this.video_collection })
                   } else {
                     VideoGrid()
                   }
@@ -315,14 +313,14 @@ export default struct MyPage {
     }
     .scrollBar(BarState.Off)
     .height('120%')
-    .onVisibleAreaChange([0,1],()=>{
+    .onVisibleAreaChange([0, 1], () => {
       this.videoBgUrl = AppStorage.get(Constants.GET_VIDEO_IMG_URL)!
       //添加收藏数据
       this.video_collection = TiktokCollection.getCollectionData()
     })
     //修改整个页面的坐标
     .onClick(() => {
-      animateTo({ duration: 200 }, () => {
+      this.getUIContext().animateTo({ duration: 200 }, () => {
         if (this.IndexX === '-65%') {
           this.IndexX = '0%'
         }
