@@ -100,7 +100,7 @@ export struct bottomNav {
     if (result.photoUris.length) {
       this.info.avatar = result.photoUris.toString()
       const token = this.info
-      await new Tiktok(getContext()).setCurrentUser(JSON.stringify(token)) //写入首选项
+      await new Tiktok(AppStorage.get(Constants.GET_CONTEXT) as C).setCurrentUser(JSON.stringify(token)) //写入首选项
     }
   }
 
