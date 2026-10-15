@@ -66,4 +66,8 @@ export class Constants {
    * 视频收藏
    */
   static readonly GLOBAL_VIDEO_COLLECTION = "Global_video_collection"
+  /**
+   * 获取页面实例
+   */
+  static readonly GET_CONTEXT = "getContext"
 }

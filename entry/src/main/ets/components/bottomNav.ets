@@ -75,7 +75,7 @@ export struct bottomNav {
   @Provide
   dialogBgColor: ResourceColor = '' //修改渐变背景色只能通过#00000000的方式
   @Provide
-  info: UserInfoModel = new Tiktok(AppStorage.get('C') as C).getCurrentUser()
+  info: UserInfoModel = new Tiktok(AppStorage.get(Constants.GET_CONTEXT) as C).getCurrentUser()
   @Consume
   IndexX: number | string //整个index页面的x坐标
   @Provide

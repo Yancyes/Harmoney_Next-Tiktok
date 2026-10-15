@@ -428,7 +428,7 @@ struct Index {
     }
   }
  aboutToAppear(): void {
-   AppStorage.setOrCreate('C',this.getUIContext().getHostContext() as C)
+   AppStorage.setOrCreate(Constants.GET_CONTEXT,this.getUIContext().getHostContext() as C)
  }
   build() {
     Column() {
