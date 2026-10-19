@@ -51,7 +51,7 @@ class commonFn {
   }
 
   getJsonFileData(path: string) {
-    return new util.TextDecoder().decodeToString(getContext().resourceManager.getRawFileContentSync(path))
+    return new util.TextDecoder().decodeToString(AppStorage.get<Context>(Constants.GET_CONTEXT)!.resourceManager.getRawFileContentSync(path))
   }
 
   getRandom(value: number) {
