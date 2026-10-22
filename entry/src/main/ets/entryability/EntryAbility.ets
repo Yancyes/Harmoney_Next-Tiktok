@@ -41,9 +41,7 @@ export default class EntryAbility extends UIAbility {
     AppStorage.setOrCreate(CURRENT_USER, info)
     //加载内容
     windowStage.loadContent(Constants.LOADING_INDEX, () => {
-      const convert = (value: number) => {
-        return ctx!.px2vp(value)
-      }
+      const convert = (value: number) => ctx!.px2vp(value)
       //安全区高度
       const safeArea = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM)
       const areaHeight: number = convert(safeArea.topRect.height)
