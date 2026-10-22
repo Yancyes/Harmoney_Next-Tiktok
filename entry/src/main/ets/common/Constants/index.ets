@@ -70,4 +70,8 @@ export class Constants {
    * 获取页面实例
    */
   static readonly GET_CONTEXT = "getContext"
+  /**
+   * 获取页面UI实例
+   */
+  static readonly GET_UI_CONTEXT = "getUIContext"
 }

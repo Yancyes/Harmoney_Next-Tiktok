@@ -429,6 +429,7 @@ struct Index {
   }
  aboutToAppear(): void {
    AppStorage.setOrCreate(Constants.GET_CONTEXT,this.getUIContext().getHostContext() as C)
+   AppStorage.setOrCreate(Constants.GET_UI_CONTEXT, this.getUIContext())
  }
   build() {
     Column() {

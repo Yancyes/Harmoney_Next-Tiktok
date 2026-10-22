@@ -18,6 +18,8 @@ Log.init({
   logSize: 200
 })
 
+const ctx = AppStorage.get<UIContext>(Constants.GET_UI_CONTEXT)
+
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     Log.info('ability onCreate');
@@ -27,25 +29,11 @@ export default class EntryAbility extends UIAbility {
     Log.info('ability onDestroy');
   }
 
-  onWindowStageCreate(windowStage: window.WindowStage){
+  onWindowStageCreate(windowStage: window.WindowStage) {
     // Main window is created, set main page for this ability
     Log.info('ability onWindowStageCreate');
     // 获取窗口
     const win = windowStage.getMainWindowSync()
-    //安全区高度
-    const areaHeight: number = px2vp(win.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM)
-      .topRect.height)
-    const bottomHeight:number = px2vp(win.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM)
-      .bottomRect.height)
-    //屏幕宽度
-    const screenWidth: number = px2vp(display.getDefaultDisplaySync().width)
-    //标签按钮宽度
-    let btnTitleWidth: number = 0
-
-    AppStorage.setOrCreate(Constants.SCREEN_WIDTH, screenWidth)
-    AppStorage.setOrCreate(Constants.BTN_TITLE_WIDTH, btnTitleWidth)
-    AppStorage.setOrCreate(Constants.AREA_HEIGHT, areaHeight)
-    AppStorage.setOrCreate(Constants.BOTTOM_HEIGHT, bottomHeight)
     win.setWindowLayoutFullScreen(true) //设置窗口全屏
     //获取用户信息
     const info = new Tiktok(this.context).getCurrentUser()
@@ -53,11 +41,24 @@ export default class EntryAbility extends UIAbility {
     AppStorage.setOrCreate(CURRENT_USER, info)
     //加载内容
     windowStage.loadContent(Constants.LOADING_INDEX, () => {
+      const convert = (value: number) => {
+        return ctx!.px2vp(value)
+      }
+      //安全区高度
+      const safeArea = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM)
+      const areaHeight: number = convert(safeArea.topRect.height)
+      const bottomHeight: number = convert(safeArea.bottomRect.height)
+      //屏幕宽度
+      const screenWidth: number = convert(display.getDefaultDisplaySync().width)
+      //标签按钮宽度
+      let btnTitleWidth: number = 0
+      AppStorage.setOrCreate(Constants.SCREEN_WIDTH, screenWidth)
+      AppStorage.setOrCreate(Constants.BTN_TITLE_WIDTH, btnTitleWidth)
+      AppStorage.setOrCreate(Constants.AREA_HEIGHT, areaHeight)
+      AppStorage.setOrCreate(Constants.BOTTOM_HEIGHT, bottomHeight)
       //设置键盘避让模式
       windowStage.getMainWindowSync().getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE)
     })
-
-
   }
 
   onWindowStageDestroy(): void {
