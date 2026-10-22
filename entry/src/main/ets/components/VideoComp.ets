@@ -109,10 +109,7 @@ export struct VideoComp {
 
   aboutToAppear() {
     const item = this.ctx.getRouter().getParams() as mediaType
-    if (item) {
-      this.item = item
-    }
-
+    item && (this.item = item)
     AppStorage.setOrCreate(Constants.SCALE_SIZE, this.scaleSize)
     this.screenHeight = this.ctx.px2vp(display.getDefaultDisplaySync().height)
     this.screenWidth = this.ctx.px2vp(display.getDefaultDisplaySync().width)
