@@ -108,8 +108,6 @@ export struct VideoComp {
   }
 
   aboutToAppear() {
-    const item = this.ctx.getRouter().getParams() as mediaType
-    item && (this.item = item)
     AppStorage.setOrCreate(Constants.SCALE_SIZE, this.scaleSize)
     this.screenHeight = this.ctx.px2vp(display.getDefaultDisplaySync().height)
     this.screenWidth = this.ctx.px2vp(display.getDefaultDisplaySync().width)
@@ -119,9 +117,9 @@ export struct VideoComp {
   }
 
   aboutToDisappear(): void {
-    //销毁事件 减少资源浪费
-    emitter.off(Constants.GLOBAL_VIDEO_CONTROLLER_PLAYER)
-    emitter.off(Constants.GLOBAL_VIDEO_CONTROLLER_PAUSE)
+    //销毁事件 减少资源浪费 只移除自身的回调 避免影响其他页面的监听
+    emitter.off(Constants.GLOBAL_VIDEO_CONTROLLER_PLAYER, this.playerCallback)
+    emitter.off(Constants.GLOBAL_VIDEO_CONTROLLER_PAUSE, this.pauseCallback)
   }
 
   getMyPageVideoUrl() {
@@ -129,20 +127,27 @@ export struct VideoComp {
   }
 
   /**
+   * 播放事件回调*/
+  private playerCallback = () => {
+    //调用观察索引变化的方法 确保播放的视频索引和当前索引一致
+    this.updateActiveIndex()
+  }
+  /**
+   * 暂停事件回调*/
+  private pauseCallback = () => {
+    this.pauseVideo()
+  }
+
+  /**
    * 在视频播放时触发*/
   onVideoPlayer() {
-    emitter.on(Constants.GLOBAL_VIDEO_CONTROLLER_PLAYER, () => {
-      //调用观察索引变化的方法 确保播放的视频索引和当前索引一致
-      this.updateActiveIndex()
-    })
+    emitter.on(Constants.GLOBAL_VIDEO_CONTROLLER_PLAYER, this.playerCallback)
   }
 
   /**
    * 在视频暂停时触发*/
   onVideoPause() {
-    emitter.on(Constants.GLOBAL_VIDEO_CONTROLLER_PAUSE, () => {
-      this.pauseVideo()
-    })
+    emitter.on(Constants.GLOBAL_VIDEO_CONTROLLER_PAUSE, this.pauseCallback)
   }
 
   format(num: number) {

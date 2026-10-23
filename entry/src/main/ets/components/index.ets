@@ -39,7 +39,7 @@ export { Colm } from './Colm'
 
 export { VideoComp } from './VideoComp'
 
-export { VideoGrid } from './VideoGrid'
+export { VideoGrid, VdDetailParams } from './VideoGrid'
 
 export { TitleTipBtn } from './titleTipBtn'
 

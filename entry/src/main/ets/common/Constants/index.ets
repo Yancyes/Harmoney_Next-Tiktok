@@ -46,7 +46,7 @@ export class Constants {
   /**
    * 视频详情页
    */
-  static readonly VIDEO_DETAIL = "components/VideoComp"
+  static readonly VIDEO_DETAIL = "pages/My/VdDetail"
   /**
    * 我的页面 视频背景图片地址*/
   static readonly GET_VIDEO_IMG_URL = "get_Video_Img_Url"
@@ -66,6 +66,10 @@ export class Constants {
    * 视频收藏
    */
   static readonly GLOBAL_VIDEO_COLLECTION = "Global_video_collection"
+  /**
+   * 视频点赞
+   */
+  static readonly GLOBAL_VIDEO_LIKE = "Global_video_like"
   /**
    * 获取页面实例
    */
