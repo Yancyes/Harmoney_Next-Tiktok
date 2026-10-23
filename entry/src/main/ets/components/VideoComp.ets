@@ -201,20 +201,18 @@ export struct VideoComp {
             })
         ))
       //播放暂停按钮
-      if (!this.playIng) {
-        Column() {
-          Image($r("app.media.Content_play")).width(68).height(68).opacity(.7)
-        }
-        .height('100%').width('100%')
-        .justifyContent(FlexAlign.Center)
+      Column() {
+        Image($r("app.media.Content_play")).width(68).height(68).opacity(.7)
       }
+      .height('100%').width('100%')
+      .justifyContent(FlexAlign.Center).visibility(this.playIng ? Visibility.Hidden : Visibility.Visible)
       //视频描述
       Row() {
         VideoDescribe({
           title: this.item.music.author,
           describe: this.item.desc
         }).visibility(this.isShowDescribe ? Visibility.Visible : Visibility.Hidden)
-      }.layoutWeight(1).height(65).margin({bottom:15})
+      }.layoutWeight(1).height(65).margin({ bottom: 15 })
       .gesture(GestureGroup(GestureMode.Parallel,
         PanGesture()
           .onActionUpdate((e) => {
