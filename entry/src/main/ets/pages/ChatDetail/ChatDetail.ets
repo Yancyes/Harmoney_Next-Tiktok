@@ -5,8 +5,9 @@ import Message from '../../components/Message'
 import { CURRENT_USER } from '../../constants'
 import { UserInfo, UserInfoModel } from '../../models'
 import { MessageInfo, MessageInfoModel } from '../../models/message'
-import { getRequestMessage } from '../../utils/request'
+import { request } from '../../utils/request'
 import { Tiktok } from '../../utils/setting'
+import { ChatResponse } from '../../models/chat'
 
 /**
  * 聊天详情页*/
@@ -62,7 +63,12 @@ struct ChatDetail {
   //获取响应的消息
   async getResponseMessage(content: string) {
     this.textInputIng = true
-    const result = await getRequestMessage(content)
+    const result = await request<ChatResponse>(
+      {
+        url: `bot?userid=${Date.now()}&spoken=${encodeURIComponent(content)}`,
+        params: content
+      }
+    )
     //新建一个消息
     /**
      * 这里的mess是机器人回复的信息，里面的发送用户是聊天的对象回复的*/
