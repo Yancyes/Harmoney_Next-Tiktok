@@ -6,22 +6,9 @@ import { Constants } from '../common/Constants';
 import dayjs from 'dayjs';
 import { Log } from '@abner/log';
 
-// 设置语言为中文
-dayjs.locale('zh-cn');
-
-Log.init({
-  tag: "ECX",
-  domain: 0xEC00,
-  close: false,
-  isHilog: true,
-  showLogLocation: true,
-  logSize: 200
-})
-
-const ctx = AppStorage.get<UIContext>(Constants.GET_UI_CONTEXT)
-
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    this.initLog()
     Log.info('ability onCreate');
   }
 
@@ -29,33 +16,17 @@ export default class EntryAbility extends UIAbility {
     Log.info('ability onDestroy');
   }
 
-  onWindowStageCreate(windowStage: window.WindowStage) {
-    // Main window is created, set main page for this ability
+  onWindowStageCreate(windowStage: window.WindowStage): void {
     Log.info('ability onWindowStageCreate');
-    // 获取窗口
     const win = windowStage.getMainWindowSync()
-    win.setWindowLayoutFullScreen(true) //设置窗口全屏
-    //获取用户信息
-    const info = new Tiktok(this.context).getCurrentUser()
-    //创建存储用户信息的空间
-    AppStorage.setOrCreate(CURRENT_USER, info)
+    this.storeCurrentUser()
+    this.storeScreenMetrics(win)
+    //设置窗口全屏
+    win.setWindowLayoutFullScreen(true)
     //加载内容
     windowStage.loadContent(Constants.LOADING_INDEX, () => {
-      const convert = (value: number) => ctx!.px2vp(value)
-      //安全区高度
-      const safeArea = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM)
-      const areaHeight: number = convert(safeArea.topRect.height)
-      const bottomHeight: number = convert(safeArea.bottomRect.height)
-      //屏幕宽度
-      const screenWidth: number = convert(display.getDefaultDisplaySync().width)
-      //标签按钮宽度
-      let btnTitleWidth: number = 0
-      AppStorage.setOrCreate(Constants.SCREEN_WIDTH, screenWidth)
-      AppStorage.setOrCreate(Constants.BTN_TITLE_WIDTH, btnTitleWidth)
-      AppStorage.setOrCreate(Constants.AREA_HEIGHT, areaHeight)
-      AppStorage.setOrCreate(Constants.BOTTOM_HEIGHT, bottomHeight)
-      //设置键盘避让模式
-      windowStage.getMainWindowSync().getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE)
+      //UIContext在内容加载完成后才可用 键盘避让只能在回调内设置
+      win.getUIContext().setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE)
     })
   }
 
@@ -70,7 +41,40 @@ export default class EntryAbility extends UIAbility {
   }
 
   onBackground(): void {
-    // Ability has back to background
+    // Ability has changed to background
     Log.info('ability onBackground');
+  }
+
+  /**
+   * 初始化日志库并设置语言为中文*/
+  private initLog(): void {
+    dayjs.locale('zh-cn')
+    Log.init({
+      tag: 'ECX',
+      domain: 0xEC00,
+      close: false,
+      isHilog: true,
+      showLogLocation: true,
+      logSize: 200
+    })
+  }
+
+  /**
+   * 将当前用户信息写入全局存储*/
+  private storeCurrentUser(): void {
+    AppStorage.setOrCreate(CURRENT_USER, new Tiktok(this.context).getCurrentUser())
+  }
+
+  /**
+   * 将屏幕宽度、安全区高度等布局尺寸写入全局存储
+   * 通过屏幕像素密度换算vp 不依赖UIContext 保证页面创建前即可读取*/
+  private storeScreenMetrics(win: window.Window): void {
+    const displayInfo = display.getDefaultDisplaySync()
+    const px2vp = (px: number): number => px / displayInfo.densityPixels
+    const safeArea = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM)
+    AppStorage.setOrCreate(Constants.SCREEN_WIDTH, px2vp(displayInfo.width))
+    AppStorage.setOrCreate(Constants.BTN_TITLE_WIDTH, 0)
+    AppStorage.setOrCreate(Constants.AREA_HEIGHT, px2vp(safeArea.topRect.height))
+    AppStorage.setOrCreate(Constants.BOTTOM_HEIGHT, px2vp(safeArea.bottomRect.height))
   }
 }
