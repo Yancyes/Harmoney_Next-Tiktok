@@ -25,17 +25,28 @@ export struct TopBar {
 
   @Builder
   titleCommon(item: BarClass, index: number) {
-    Text(item.title)
-      .textAlign(TextAlign.Center)
-      .fontColor(Color.White)
-      .fontWeight(600)
-      .fontSize(20)
-      //强度驱动明暗与虚化 拖动中当前页与目标页此消彼长
-      .opacity(0.9 + 0.1 * this.labelStrength(index))
-      .textShadow({ radius: (1 - this.labelStrength(index)) * 5, offsetY: 5, color: '#ff6b6b6b' })
-      .onClick(() => {
-        this.selectTab(index)
-      })
+    Stack({ alignContent: Alignment.Bottom }) {
+      Text(item.title)
+        .textAlign(TextAlign.Center)
+        .fontColor(Color.White)
+        .fontWeight(600)
+        .fontSize(20)
+        //强度驱动明暗与虚化 拖动中当前页与目标页此消彼长
+        .opacity(0.9 + 0.1 * this.labelStrength(index))
+        .textShadow({ radius: (1 - this.labelStrength(index)) * 5, offsetY: 5, color: '#ff6b6b6b' })
+        .onClick(() => {
+          this.selectTab(index)
+        })
+      //下划线是tab项自身的内容 跟着文字一起滚动 出界时和文字一起被列表自然遮挡
+      if (index === this.fadeFrom) {
+        Row()
+          .width(this.indicatorW)
+          .height(this.indicatorH)
+          .borderRadius(2)
+          .backgroundColor(this.indicatorColor())
+          .translate({ x: this.underlineSlideX(), y: this.indicatorH + this.indicatorGap })
+      }
+    }
   }
 
   /**
@@ -80,14 +91,7 @@ export struct TopBar {
   topNavCurrentIndex: number
   @Provide
   isShowRightSideBar: boolean = true
-  /**
-   * 下划线位置与可见性*/
-  @State indicatorX: number = 0
-  @State indicatorY: number = 0
-  @State indicatorReady: boolean = false
-  /**
-   * 交叉渐变三元组:起始tab索引、目标tab索引、0~1进度
-   * 由逐帧回调写入 文字明暗/虚化与下划线颜色都按它插值*/
+  //交叉渐变三元组:起始tab索引、目标tab索引、0~1进度由逐帧回调写入 起始tab同时是下划线当前挂靠的那一项文字明暗/虚化、下划线颜色与滑动偏移都按进度插值
   @State fadeFrom: number = 0
   @State fadeTarget: number = 0
   @State fadeProgress: number = 0
@@ -104,14 +108,12 @@ export struct TopBar {
   @StorageProp(Constants.SCREEN_WIDTH)
   private contentWidth: number = 0
   /**
-   * 下划线是否由内容翻页的逐帧回调掌控 期间顶部列表的滚动回调不再覆盖它*/
-  private frameDriven: boolean = false
+   * 是否正在播点击切换的下划线滑动动画 期间内容停稳的回调不再归位渐变*/
+  private tapSliding: boolean = false
 
   aboutToAppear(): void {
-    //首帧前先把渐变状态对齐到当前tab 避免100ms的定位延迟里亮错标签
+    //首帧就把下划线挂到当前tab 位置由该tab自身布局给出 无需等rect
     this.setFade(this.topNavCurrentIndex, this.topNavCurrentIndex, 0)
-    //等待List完成首帧布局后才有rect可取
-    setTimeout((): void => this.updateIndicator(false), 100)
   }
 
   /**
@@ -141,67 +143,52 @@ export struct TopBar {
   }
 
   /**
-   * tab矩形按对齐下划线宽度后的居中x*/
-  centerX(rect: RectResult): number {
-    return rect.x + (rect.width - this.indicatorW) / 2
+   * 目标tab中心相对挂靠tab中心的距离
+   * 目标tab未参与布局(不在可视范围)时按挂靠tab宽度+列表间距估算一个步长*/
+  slideDistance(target: number): number {
+    const from = this.classifyScroller.getItemRect(this.fadeFrom)
+    if (!from || from.width === 0) {
+      return 0
+    }
+    const to = this.classifyScroller.getItemRect(target)
+    if (!to || to.width === 0) {
+      const step = from.width + this.listSpace
+      return target > this.fadeFrom ? step : -step
+    }
+    return (to.x + to.width / 2) - (from.x + from.width / 2)
   }
 
   /**
-   * 指定tab的下划线锚点x
-   * 该tab不在List可视范围(未参与布局)时 按当前tab锚点+宽度+间距估算*/
-  anchorXOf(index: number): number {
-    const rect = this.classifyScroller.getItemRect(index)
-    if (rect && rect.width > 0) {
-      return this.centerX(rect)
+   * 下划线在挂靠tab内的横向偏移 停稳时为0 翻页时按进度滑向目标tab*/
+  underlineSlideX(): number {
+    if (this.fadeTarget === this.fadeFrom) {
+      return 0
     }
-    const cur = this.classifyScroller.getItemRect(this.topNavCurrentIndex)
-    if (!cur || cur.width === 0) {
-      return this.indicatorX
-    }
-    const step = cur.width + this.listSpace
-    return this.centerX(cur) + (index > this.topNavCurrentIndex ? step : -step)
+    return this.slideDistance(this.fadeTarget) * this.fadeProgress
   }
 
   /**
-   * 把下划线吸附到选中tab下方
-   * @param animated 是否补一段滑动动画(点击切换时用)*/
-  updateIndicator(animated: boolean) {
-    const rect = this.classifyScroller.getItemRect(this.topNavCurrentIndex)
-    if (!rect || rect.width === 0) {
-      return
-    }
-    const x = this.centerX(rect)
-    const y = rect.y + rect.height + this.indicatorGap
-    const apply = () => {
-      this.indicatorX = x
-      this.indicatorY = y
-      this.indicatorReady = true
-      this.setFade(this.topNavCurrentIndex, this.topNavCurrentIndex, 0)
-    }
-    animated ? this.getUIContext().animateTo({ duration: 250, curve: Curve.EaseOut }, apply) : apply()
-  }
-
-  /**
-   * 逐帧渲染的唯一入口 用选中页的位移比例插值下划线位置与渐变状态
+   * 逐帧渲染的唯一入口 把选中页的位移比例写成渐变状态
+   * 下划线位置由挂靠tab的布局+偏移得出 天然跟随列表滚动
    * @param from 选中页索引
    * @param ratio 该页相对起点的位移比例 负值表示去后一页 0表示已停稳*/
   driveIndicatorByRatio(from: number, ratio: number) {
     if (ratio === 0) {
-      //内容停稳 控制权交还给顶部列表滚动与点击切换动画
-      this.frameDriven = false
+      //停稳 把下划线交还给选中tab自己持有 偏移归零但像素位置不变
+      //点击切换的滑动还没走完时不能归位 否则会把滑动动画打断
+      if (!this.tapSliding) {
+        this.setFade(from, from, 0)
+      }
       return
     }
-    this.frameDriven = true
-    //手指左滑去后一页 下划线向右移
+    //手指左滑去后一页 下划线向右滑
     const target = from + (ratio < 0 ? 1 : -1)
+    //首/尾tab没有相邻页 目标即自身 setFade会把进度归零 文字与颜色都不再渐变
     const reachable = target >= 0 && target < this.topTabList.length
-    const start = this.anchorXOf(from)
-    //弹簧曲线过冲时最多走到相邻tab 不穿透
-    const progress = Math.min(Math.abs(ratio), 1)
-    this.indicatorX = reachable ? start + (this.anchorXOf(target) - start) * progress : start
-    this.indicatorReady = true
-    //首/尾tab时目标即自身 setFade会把进度归零 文字与颜色都不再渐变
-    this.setFade(from, reachable ? target : from, progress)
+    //手指一旦接管 点击切换的滑动就地让位 保证跟手
+    this.tapSliding = false
+    //弹簧曲线过冲时最多滑到相邻tab 不穿透
+    this.setFade(from, reachable ? target : from, Math.min(Math.abs(ratio), 1))
   }
 
   /**
@@ -220,12 +207,9 @@ export struct TopBar {
   }
 
   /**
-   * 索引变化时保持选中项可见 非跟手场景再补一段滑动动画*/
+   * 索引变化时把选中项滚进可视区 下划线随该项的布局一起过去*/
   onIndexChange() {
     this.scrollTabIntoView()
-    if (!this.frameDriven) {
-      this.updateIndicator(true)
-    }
   }
 
   /**
@@ -250,39 +234,22 @@ export struct TopBar {
    * 顶部栏主要内容*/
   @Builder
   barMainContent() {
-    Stack({ alignContent: Alignment.TopStart }) {
-      List({ space: this.listSpace, initialIndex: this.topNavCurrentIndex, scroller: this.classifyScroller }) {
-        LazyForEach(this.tabListData, (item: BarClass, index: number) => {
-          ListItem() {
-            this.titleCommon(item, index)
-          }
-        })
-      }
-      .onScrollIndex((start: number, end: number) => {
-        this.tagIndexPosition = { start, end }
-      })
-      //拖动顶部列表时逐帧回调 让下划线实时贴合列表滚动 内容翻页期间由逐帧驱动掌控
-      .onDidScroll(() => {
-        if (!this.frameDriven) {
-          this.updateIndicator(false)
+    List({ space: this.listSpace, initialIndex: this.topNavCurrentIndex, scroller: this.classifyScroller }) {
+      LazyForEach(this.tabListData, (item: BarClass, index: number) => {
+        ListItem() {
+          this.titleCommon(item, index)
         }
       })
-      .edgeEffect(EdgeEffect.None)
-      .scrollBar(BarState.Off)
-      .listDirection(Axis.Horizontal)
-      .width(this.barContentWidth)
-      .height(50)
-      .padding({ top: 15, left: 5, right: 5 })
-
-      //共用一条下划线 位置由tab矩形锚点算出 拖动时逐帧插值 点击时animateTo
-      Row()
-        .width(this.indicatorW)
-        .height(this.indicatorH)
-        .borderRadius(2)
-        .backgroundColor(this.indicatorColor())
-        .position({ x: this.indicatorX, y: this.indicatorY })
-        .visibility(this.indicatorReady ? Visibility.Visible : Visibility.Hidden)
     }
+    .onScrollIndex((start: number, end: number) => {
+      this.tagIndexPosition = { start, end }
+    })
+    .edgeEffect(EdgeEffect.None)
+    .scrollBar(BarState.Off)
+    .listDirection(Axis.Horizontal)
+    .width(this.barContentWidth)
+    .height(50)
+    .padding({ top: 15, left: 5, right: 5 })
   }
 
   /**
@@ -292,8 +259,24 @@ export struct TopBar {
   }
 
   /**
-   * 点击标签切到该页 推荐页恢复播放 其余暂停*/
+   * 点击标签切到该页 下划线从当前tab滑过去再归位到选中tab
+   * 推荐页恢复播放 其余暂停*/
   selectTab(index: number) {
+    if (index !== this.topNavCurrentIndex) {
+      const from = this.topNavCurrentIndex
+      this.tapSliding = true
+      this.getUIContext().animateTo({
+        duration: 250,
+        curve: Curve.EaseOut,
+        onFinish: () => {
+          //期间被手指拖动接管就不再归位 免得把正在跟手的状态打断
+          if (this.tapSliding) {
+            this.tapSliding = false
+            this.setFade(this.topNavCurrentIndex, this.topNavCurrentIndex, 0)
+          }
+        }
+      }, () => this.setFade(from, index, 1))
+    }
     this.tabController.changeIndex(index)
     this.isFeedTab(index) ? this.startVideo() : this.pauseVideo()
   }
@@ -340,10 +323,6 @@ export struct TopBar {
       //内容滚动逐帧回调 覆盖松手后的惯性滑动与回弹 抬手处不再停顿
       .onContentDidScroll((selectedIndex: number, index: number, position: number, mainAxisLength: number) => {
         this.onContentScroll(selectedIndex, index, position, mainAxisLength)
-      })
-      //动画结束兜底交回控制权 之后由列表滚动回调继续贴合
-      .onAnimationEnd(() => {
-        this.frameDriven = false
       })
       .onChange(() => {
         this.isFeedTab(this.topNavCurrentIndex) ? this.startVideo() : this.pauseVideo()
