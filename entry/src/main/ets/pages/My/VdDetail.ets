@@ -1,6 +1,5 @@
 import { VdDetailParams, VideoComp } from '../../components'
 import { DataSource, mediaType } from '../../models'
-import { router } from '@kit.ArkUI'
 
 /**
  * 视频详情页 支持上下滑动切换视频*/
@@ -52,7 +51,7 @@ struct VdDetail {
         .fontSize(40)
         .margin({ top: 20, left: 15 })
         .onClick(() => {
-          router.back()
+          this.getUIContext().getRouter().back()
         })
     }
     .width('100%')
