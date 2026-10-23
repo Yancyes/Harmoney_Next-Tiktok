@@ -214,7 +214,7 @@ export struct VideoComp {
           title: this.item.music.author,
           describe: this.item.desc
         }).visibility(this.isShowDescribe ? Visibility.Visible : Visibility.Hidden)
-      }.layoutWeight(1).height(65)
+      }.layoutWeight(1).height(65).margin({bottom:15})
       .gesture(GestureGroup(GestureMode.Parallel,
         PanGesture()
           .onActionUpdate((e) => {
