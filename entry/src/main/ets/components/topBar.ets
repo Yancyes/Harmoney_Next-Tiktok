@@ -216,10 +216,11 @@ export struct TopBar {
    * 选中项贴近顶部列表可视区边缘时把列表滚过去*/
   scrollTabIntoView() {
     const current = this.topNavCurrentIndex
-    if (current === this.tagIndexPosition.end || current === this.tagIndexPosition.end - 1) {
+    const c = current === (this.tagIndexPosition.start||this.tagIndexPosition.end)
+    if (c || current === this.tagIndexPosition.end - 1) {
       this.classifyScroller.scrollToIndex(this.clampIndex(current + 2), true) //获焦item向左滚动
     }
-    if (current === this.tagIndexPosition.start || current === this.tagIndexPosition.start + 1) {
+    if (c || current === this.tagIndexPosition.start + 1) {
       this.classifyScroller.scrollToIndex(this.clampIndex(current - 2), true) //获焦item向右滚动
     }
   }
