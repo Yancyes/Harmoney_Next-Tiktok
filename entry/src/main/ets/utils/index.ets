@@ -9,3 +9,5 @@ export * from './setting'
 export * from './TIkTokEmitter'
 
 export * from './TiktokCollection'
+
+export * from './TiktokLike'

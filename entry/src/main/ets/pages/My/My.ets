@@ -3,7 +3,7 @@ import { tiktok } from '../../utils/setting'
 import { tipDialog } from '../../common'
 import { iconBtn, ImgComp, scrollbar, TitleTipBtn, VideoGrid } from '../../components'
 import { Constants } from '../../common/Constants'
-import { TiktokCollection } from '../../utils'
+import { TiktokCollection, TiktokLike } from '../../utils'
 
 @Component
 export default struct MyPage {
@@ -21,6 +21,7 @@ export default struct MyPage {
   @State
   videoBgUrl: string = ''
   @State video_collection: mediaType[] = []
+  @State video_like: mediaType[] = []
 
   @Styles
   imgBg(){
@@ -279,7 +280,7 @@ export default struct MyPage {
                   } else if (index === 3) {
                     VideoGrid({ data: this.video_collection })
                   } else {
-                    VideoGrid()
+                    VideoGrid({ data: this.video_like })
                   }
                 }
                 .tabBar(SubTabBarStyle.of(item.title)
@@ -317,6 +318,8 @@ export default struct MyPage {
       this.videoBgUrl = AppStorage.get(Constants.GET_VIDEO_IMG_URL)!
       //添加收藏数据
       this.video_collection = TiktokCollection.getCollectionData()
+      //添加喜欢数据
+      this.video_like = TiktokLike.getLikeData()
     })
     //修改整个页面的坐标
     .onClick(() => {

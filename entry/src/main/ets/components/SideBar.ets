@@ -2,7 +2,7 @@ import { commentDataModel, mediaType, sideData, sideDataModel } from '../models'
 import { common, Constants, tipDialog } from '../common'
 import { Comment, ImgComp, LikeTextCount, ReplyBox, ReplyInput } from '.'
 import { util } from '@kit.ArkTS'
-import { tiktokChatStory, TiktokCollection } from '../utils'
+import { tiktokChatStory, TiktokCollection, TiktokLike } from '../utils'
 
 enum sideList {
   like,
@@ -22,7 +22,8 @@ struct Sidebar {
   @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
 
   changeState(value: sideList) {
-    this.sideDataList[value].isLike ? this.sideDataList[value].Num!++ : this.sideDataList[value].Num!--
+    //取消点赞/收藏时数量应减 原逻辑方向写反
+    this.sideDataList[value].isLike ? this.sideDataList[value].Num!-- : this.sideDataList[value].Num!++
     this.sideDataList[value].isLike = !this.sideDataList[value].isLike
   }
 
@@ -44,10 +45,12 @@ struct Sidebar {
     new sideDataModel({
       name: '点赞',
       imgUrl: $r('app.media.love'),
-      Num: this.item.statistics.digg_count,
-      isLike: false,
+      Num: this.item.statistics.digg_count + (TiktokLike.isLiked(this.item.aweme_id) ? 1 : 0),
+      isLike: TiktokLike.isLiked(this.item.aweme_id),
       click: () => {
         this.changeState(sideList.like)
+        //changeState已翻转isLike 按新状态写入仓库
+        TiktokLike.changeLike(this.item, this.sideDataList[sideList.like].isLike!)
       }
     }),
     new sideDataModel({
@@ -63,9 +66,10 @@ struct Sidebar {
     new sideDataModel({
       name: '收藏',
       imgUrl: $r('app.media.collect'),
-      Num: this.item.statistics.comment_count,
-      isLike: false,
+      Num: this.item.statistics.collect_count + (TiktokCollection.isCollected(this.item.aweme_id) ? 1 : 0),
+      isLike: TiktokCollection.isCollected(this.item.aweme_id),
       click: () => {
+        //先按当前状态决定增删 changeState在后 顺序不能颠倒
         this.sideDataList[sideList.collect].isLike === true ? TiktokCollection.delCollection(this.item) :
           TiktokCollection.addCollection(this.item)
         this.changeState(sideList.collect)

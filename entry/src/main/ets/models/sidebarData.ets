@@ -20,7 +20,8 @@ export class sideDataModel implements sideData {
   constructor(model: sideData) {
     this.name = model.name
     this.imgUrl = model.imgUrl
-    this.Num = model.Num || common.getRandomLikes()
+    //??只在null/undefined时兜底 避免真实的0被随机数覆盖
+    this.Num = model.Num ?? common.getRandomLikes()
     this.click = model.click
     this.isLike = model.isLike
   }
