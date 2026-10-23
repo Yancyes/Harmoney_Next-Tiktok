@@ -1,5 +1,4 @@
 import { common } from '../common'
-import { CURRENT_USER } from '../constants'
 
 /**
  * 用户信息接口*/
@@ -117,4 +116,7 @@ export const defaultUserInfo: UserInfo[] = [
 ]
 
 
-export const CurrentUser: UserInfo = AppStorage.get(CURRENT_USER) as UserInfoModel
+/**
+ * preferences默认值必须是ValueType且模块import期读不到AppStorage
+ * 用户信息以JSON字符串存储 无数据时返回空字符串作为兜底*/
+export const CurrentUser: string = ''

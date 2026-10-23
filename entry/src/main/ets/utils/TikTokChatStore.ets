@@ -1,5 +1,6 @@
 import { preferences } from '@kit.ArkData'
 import { commentDataModel } from '../models'
+import { Constants } from '../common/Constants'
 
 class TiktokChatStory {
   context?: Context
@@ -16,7 +17,8 @@ class TiktokChatStory {
    * 获取抖音视频仓库 单个仓库
    * @param {String} videoId 视频的id */
   getVideoStore(videoId: string) {
-    return preferences.getPreferencesSync(this.context || getContext(), {
+    const ctx = this.context || AppStorage.get<Context>(Constants.GET_CONTEXT)!
+    return preferences.getPreferencesSync(ctx, {
       name: `${this.TikTokCommentChatInfo}_${videoId}`  //仓库名
     })
   }
@@ -39,10 +41,14 @@ class TiktokChatStory {
    * @param videoId 视频id
    * @param messageId 评论的id
    * */
-  async delOneTiktokVideoComment(videoId: string, messageId: number) {
+  async delOneTiktokVideoComment(videoId: string, messageId: string | number) {
     const store = this.getVideoStore(videoId)
     const list = this.getOneTiktokVideoAllComment(videoId)
     const index = list.findIndex(item => item.id === messageId)
+    //id为UUID字符串 找不到时不能splice(-1) 否则会误删末项
+    if (index === -1) {
+      return
+    }
     list.splice(index, 1)
     store.putSync(videoId, JSON.stringify(list))
     await store.flush()
@@ -58,10 +64,14 @@ class TiktokChatStory {
 
   /**
    * 单条评论状态修改*/
-  async changeOneTiktokVideoCommentLike(videoId: string, messageId: number, likeCount: number,likeFlag: boolean) {
+  async changeOneTiktokVideoCommentLike(videoId: string, messageId: string | number, likeCount: number,likeFlag: boolean) {
     const store = this.getVideoStore(videoId)
     const list = this.getOneTiktokVideoAllComment(videoId)
     const index = list.findIndex(item => item.id === messageId)
+    //找不到时直接返回 避免list[-1]抛异常
+    if (index === -1) {
+      return
+    }
     list[index].likeNum = likeCount
     list[index].likeFlag = likeFlag
     await store.put(videoId, JSON.stringify(list))

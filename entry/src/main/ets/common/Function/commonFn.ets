@@ -80,7 +80,8 @@ class commonFn {
    * @param m 最大值
    * */
   creteRandom(n: number = 9999999999, m: number = 10000000000): number {
-    return Math.floor(Math.random() * (m - n + 1)) + m
+    //区间应为[n, m] 原先误加m导致取值恒接近上限
+    return Math.floor(Math.random() * (m - n + 1)) + n
   }
 
   /**
@@ -88,7 +89,7 @@ class commonFn {
    * @param n 最小值
    * @param m 最大值*/
   creteUserID(n: number, m: number): number {
-    return Math.floor(Math.random() * (n + 1)) + m
+    return Math.floor(Math.random() * (m - n + 1)) + n
   }
 }
 

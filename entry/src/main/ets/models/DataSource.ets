@@ -39,7 +39,8 @@ export class DataSource<T> extends BasicDataSource {
   pushArrayData(data: T[], flag: boolean, start: number, end: number) {
     const result = data.slice(start, end)
     flag ? this.DataArray.unshift(...result) : this.DataArray.push(...result)
-    this.notifyDataAdd(this.DataArray.length - 1)
+    //批量插入后原notifyDataAdd只通知末索引 头部插入会导致LazyForEach渲染错乱
+    this.notifyDataReload()
   }
 
   /**

@@ -3,6 +3,7 @@ import { CurrentUser, defaultUserInfo, UserInfo, UserInfoModel } from '../models
 import { MessageInfoModel } from '../models/message'
 import { preferences } from '@kit.ArkData'
 import { C, P } from '../common'
+import { Constants } from '../common/Constants'
 
 type U = UserInfoModel
 type M = MessageInfoModel
@@ -12,14 +13,16 @@ type M = MessageInfoModel
  * */
 export class Tiktok {
 
-  private context: C
+  private context?: C
 
-  constructor(ctx: C) {
+  constructor(ctx?: C) {
     this.context = ctx
   }
 
   getStore():P {
-    return preferences.getPreferencesSync(this.context||getContext(),{
+    //模块加载期拿不到UI实例context 统一在调用时惰性获取
+    const ctx = this.context || AppStorage.get<C>(Constants.GET_CONTEXT) as C
+    return preferences.getPreferencesSync(ctx, {
       name: STORY,
     })
   }
@@ -90,6 +93,10 @@ export class Tiktok {
     const store = this.getStore()
     const list = this.getChatMessage(userId) //拿到所有的所有的聊天记录
     const index = list.findIndex(item => item.id === messId)
+    //找不到时不能splice(-1) 否则会误删末项
+    if (index === -1) {
+      return
+    }
     list.splice(index, 1) //删除
     // 写入list
     store.putSync(`${UserRecord_KEY}_${userId}`, JSON.stringify(list))
@@ -122,4 +129,5 @@ export class Tiktok {
   }
 }
 
-export const tiktok = new Tiktok(getContext())
+//构造期不捕获context getStore会在调用时惰性获取
+export const tiktok = new Tiktok()

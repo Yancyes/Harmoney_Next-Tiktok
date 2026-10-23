@@ -14,7 +14,7 @@ struct SettingPage {
   /** 退出登录 */
   async logout(): Promise<void> {
     AppStorage.set(CURRENT_USER, "") //清空全局状态
-    await new Tiktok(getContext()).setCurrentUser("") //清空首选项
+    await new Tiktok().setCurrentUser("") //清空首选项 context由仓库内部惰性获取
     //清空页面栈 否则触发返回事件会回到上个页面
     router.clear()
     //此时跳转登录再返回就直接到桌面
