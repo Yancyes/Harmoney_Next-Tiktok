@@ -1,23 +1,25 @@
+import { common } from '../common'
 import { UserInfo } from '../models'
 import { ImgComp } from './ImgComp'
 
 /**
  * 联系人/搜索结果行 消息页与搜索页共用*/
-@Component
+@ComponentV2
 export struct ContactRow {
   @Require
-  @Prop
+  @Param
   item: UserInfo
 
   build() {
     Row({ space: 10 }) {
       ImgComp({
         imgWidth: 70,
-        imgSrc: this.item.avatar,
+        imgSrc: common.avatar(this.item.avatar, this.item.user_id),
+        fallbackSrc: common.avatar('', this.item.user_id),
         bordRadius: 35
       })
       Column() {
-        Text(this.item.username)
+        Text(common.nickName(this.item.username, this.item.user_id))
           .fontWeight(600)
           .fontSize(24)
         Text(this.item.content)

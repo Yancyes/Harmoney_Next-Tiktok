@@ -1,11 +1,11 @@
 /*
  * 公共方法类库*/
-import { promptAction, router } from '@kit.ArkUI'
-import { cities } from '../../models'
+import { cities, netAvatars, nickNames } from '../../models'
 import { Constants } from '../Constants'
 import { util } from '@kit.ArkTS'
-import { tiktok } from '../../utils'
+import { tiktok } from '../../utils/setting'
 import { preferences } from '@kit.ArkData'
+import { AppEnv } from '../AppEnv'
 export type P = preferences.Preferences
 export type P_O = preferences.Options
 export type C = Context
@@ -18,7 +18,7 @@ const showToast =
   (message: string = "功能未完善", time: number = 1500, alignment?: Alignment,
     backgroundColor: ResourceColor = Constants.COLOR_DIALOG_BG, offset?: Offset
   ) => {
-    promptAction.showToast({
+    AppEnv.uiContext?.getPromptAction()?.showToast({
       message,
       backgroundColor,
       textColor: Color.White,
@@ -32,14 +32,14 @@ const showToast =
 class commonFn {
   /**未登录时的提示弹窗*/
   private showLoginTip() {
-    AlertDialog.show({
+    AppEnv.uiContext?.showAlertDialog({
       title: '登录状态监测',
       message: '请先登录!',
       alignment: DialogAlignment.Center,
       confirm: {
         value: '确定',
         action: () => {
-          this.nav(Constants.LOADING_LOGIN)
+          this.nav(Constants.ROUTE_LOGIN)
         }
       }
     })
@@ -65,18 +65,77 @@ class commonFn {
   }
 
   /**
-   * 统一路由跳转
-   * @param url 页面路径 一律取Constants里的常量
-   * @param params 页面参数*/
-  nav(url: string, params?: object) {
-    router.pushUrl({
-      url: url,
-      params: params
-    })
+   * 统一路由跳转 走router_map.json注册的系统路由表
+   * 全应用只有一个Navigation宿主 栈直接取AppEnv的路由栈
+   * @param name 路由名 一律取Constants里的ROUTE_*常量
+   * @param param 页面参数 目标页在NavDestination的onReady里读pathInfo.param*/
+  nav(name: string, param?: Object) {
+    AppEnv.pathStack.pushPathByName(name, param)
+  }
+
+  /**
+   * 返回上一页*/
+  back() {
+    AppEnv.pathStack.pop()
+  }
+
+  /**
+   * 清空路由栈 传name时再压入目标路由
+   * 登录后栈中只剩登录页 清空即露出宿主首页
+   * 退出登录不清空的话返回键会退回已登出的页面栈*/
+  navWithClear(name?: string) {
+    const stack = AppEnv.pathStack
+    stack.clear()
+    if (name) {
+      stack.pushPathByName(name, undefined)
+    }
+  }
+
+  /**
+   * 私信时间分隔文案 当天只显示时分 昨天及以前补上日期*/
+  formatMsgTime(sendTime: number): string {
+    const date = new Date(sendTime)
+    const now = new Date()
+    const time = `${this.toStr(date.getHours())}:${this.toStr(date.getMinutes())}`
+    if (date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()) {
+      return time
+    }
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+    if (date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() &&
+      date.getFullYear() === yesterday.getFullYear()) {
+      return `昨天 ${time}`
+    }
+    return `${date.getMonth() + 1}月${date.getDate()}日 ${time}`
   }
 
   getJsonFileData(path: string) {
-    return new util.TextDecoder().decodeToString(AppStorage.get<Context>(Constants.GET_CONTEXT)!.resourceManager.getRawFileContentSync(path))
+    return new util.TextDecoder().decodeToString(AppEnv.context!.resourceManager.getRawFileContentSync(path))
+  }
+
+  /**
+   * 按种子在池里取样 同一个种子恒定命中同一个元素*/
+  private pick<T>(pool: T[], seed: string): T {
+    let sum = 0
+    for (let i = 0; i < seed.length; i++) {
+      sum += seed.charCodeAt(i)
+    }
+    return pool[sum % pool.length]
+  }
+
+  /**
+   * 头像兜底
+   * @param src 已有头像 为空时用网络头像替代
+   * @param seed 取样的种子 一般传用户id 保证同一个人每次进来是同一张脸*/
+  avatar(src: string | undefined, seed: string = ''): string {
+    return src ? src : this.pick(netAvatars, seed)
+  }
+
+  /**
+   * 昵称兜底
+   * @param src 已有昵称 为空时按种子从英文名池随机取一个
+   * @param seed 取样的种子 一般传用户id*/
+  nickName(src: string | undefined, seed: string = ''): string {
+    return src ? src : this.pick(nickNames, seed)
   }
 
   getRandom(value: number) {

@@ -5,7 +5,7 @@ export { TopBar } from './topBar'
 
 export { Sidebar } from './SideBar'
 
-export { ReplyInput,Input,ReplyBox } from './ReplyInput'
+export { Input } from './Input'
 
 export { Card } from './Card'
 

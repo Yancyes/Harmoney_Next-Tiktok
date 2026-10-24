@@ -3,27 +3,34 @@ import { DataSource, shopData, shopType } from '../../models'
 import { waterFlowList } from '../../components'
 
 /**
- * 商品页*/
-@Entry
-@Component
-struct ShopPage {
+ * 商品页 动态路由表入口 见resources/base/profile/router_map.json
+ * ShopPage本身还要作为顶栏的一页复用 所以NavDestination只包在路由入口里*/
+@Builder
+export function ShopPageBuilder() {
+  NavDestination() {
+    ShopPage()
+  }.hideTitleBar(true)
+}
+
+@ComponentV2
+export struct ShopPage {
   /**
    * 懒加载商品数据*/
   private shopDataInfo: DataSource<shopType> = new DataSource(shopData)
   /**
    * 下拉刷新状态*/
-  @State isRefreshing: boolean = false
+  @Local
+  isRefreshing: boolean = false
   /**
    * 商品搜索名*/
-  @State
-  @Watch('filterShop')
+  @Local
   private searchName: string = ''
   /**
    * 商品信息*/
-  @State private shopInfo: shopType[] = []
+  @Local private shopInfo: shopType[] = []
   /**
    * 懒加载筛选后的商品信息*/
-  @State private filterInfo: DataSource<shopType> | null = null
+  @Local private filterInfo: DataSource<shopType> | null = null
 
   //加载更多数据
   loadMore() {
@@ -35,19 +42,10 @@ struct ShopPage {
     })
   }
 
-  @Builder
-  getFooter() {
-    Row({ space: 4 }) {
-      Text('数据加载')
-      LoadingProgress()
-        .width(24).height(24)
-    }.width('100%')
-    .height(60).justifyContent(FlexAlign.Center).margin({ bottom: 40 })
-  }
-
-  filterShop() {
+  @Monitor('searchName')
+  filterShop(): void {
     if (this.searchName) {
-      this.shopInfo = shopData.filter(item => item.name.includes(this.searchName))
+      this.shopInfo = shopData.filter((item: shopType) => item.name.includes(this.searchName))
       this.filterInfo = new DataSource(this.shopInfo)
     }
   }
@@ -63,9 +61,9 @@ struct ShopPage {
   }
 
   build() {
-    Refresh({ refreshing: $$this.isRefreshing, builder: this.DownBuilder() }) {
+    Refresh({ refreshing: this.isRefreshing!!, builder: this.DownBuilder() }) {
       Column() {
-        Search({ placeholder: '寻找你感兴趣的商品吧', value: $$this.searchName })
+        Search({ placeholder: '寻找你感兴趣的商品吧', value: this.searchName!! })
           .width('90%')
           .height(40)
           .border({
@@ -102,5 +100,3 @@ struct ShopPage {
     })
   }
 }
-
-export default ShopPage

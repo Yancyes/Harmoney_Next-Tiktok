@@ -1,6 +1,6 @@
 import { preferences } from '@kit.ArkData'
 import { commentData, commentDataModel } from '../models'
-import { Constants } from '../common/Constants'
+import { AppEnv } from '../common/AppEnv'
 
 class TiktokChatStory {
   context?: Context
@@ -17,10 +17,14 @@ class TiktokChatStory {
    * 获取抖音视频仓库 单个仓库
    * @param {String} videoId 视频的id */
   getVideoStore(videoId: string) {
-    const ctx = this.context || AppStorage.get<Context>(Constants.GET_CONTEXT)!
+    const ctx = this.context || AppEnv.context!
     return preferences.getPreferencesSync(ctx, {
       name: `${this.TikTokCommentChatInfo}_${videoId}`  //仓库名
     })
+  }
+
+  private serialize(list: commentDataModel[]): string {
+    return JSON.stringify(list.map((item: commentDataModel) => item.toPlain()))
   }
 
   /**
@@ -32,7 +36,7 @@ class TiktokChatStory {
     const store = this.getVideoStore(videoId)
     const list = this.getOneTiktokVideoAllComment(videoId)
     list.unshift(message)
-    store.putSync(videoId, JSON.stringify(list))
+    store.putSync(videoId, this.serialize(list))
     await store.flush()
   }
 
@@ -50,7 +54,7 @@ class TiktokChatStory {
       return
     }
     list.splice(index, 1)
-    store.putSync(videoId, JSON.stringify(list))
+    store.putSync(videoId, this.serialize(list))
     await store.flush()
   }
 
@@ -59,9 +63,9 @@ class TiktokChatStory {
    * @param {String} videoId 视频的id */
   getOneTiktokVideoAllComment(videoId: string): commentDataModel[] {
     const store = this.getVideoStore(videoId)
-    const list = JSON.parse(store.getSync(videoId, '[]') as string) as commentData[]
-    //JSON还原出来的是裸对象 必须还原成@Observed实例 @ObjectLink才能监听到点赞数等字段变化
-    return list.map(item => new commentDataModel(item))
+    const raw = JSON.parse(store.getSync(videoId, '[]') as string) as commentData[]
+    const list = Array.isArray(raw) ? raw : []
+    return list.filter(item => item && item.content).map(item => new commentDataModel(item))
   }
 
   /**
@@ -76,7 +80,7 @@ class TiktokChatStory {
     }
     list[index].likeNum = likeCount
     list[index].likeFlag = likeFlag
-    await store.put(videoId, JSON.stringify(list))
+    await store.put(videoId, this.serialize(list))
     await store.flush()
   }
 }

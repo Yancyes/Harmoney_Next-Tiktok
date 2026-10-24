@@ -3,11 +3,14 @@
 import { ImgComp } from '.'
 import { Constants } from '../common/Constants'
 
-@Component
+@ComponentV2
 export struct CardItem {
+  @Param
   icon: ResourceStr = ""
+  @Param
   leftTitle: string = ""
-  rightContent?: string = ""
+  @Param
+  rightContent: string = ""
 
   build() {
     Row() {

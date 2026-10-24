@@ -1,27 +1,26 @@
 import { BarClass, DataSource, ListIndexPosition, TabList } from '../models'
-import Shop from '../pages/Shop/ShopPage'
+import { ShopPage } from '../pages/Shop/ShopPage'
 import { Colm, HeadBar } from '.'
-import { Constants } from '../common'
-import RecommendPage from '../pages/VideoPage/RecommendPage'
+import { common, Constants, GlobalState, globalState } from '../common'
+import { RecommendPage } from '../pages/VideoPage/RecommendPage'
+import { SearchParams } from '../pages/Search/SearchPage'
 import { TikTokEmitter } from '../utils/TIkTokEmitter'
 import { BtnName } from '../GlobalEnum'
 
 /**
  * 顶部栏*/
-@Component
+@ComponentV2
 export struct TopBar {
-  @StorageProp(Constants.AREA_HEIGHT)
-  topHeight: number = 0
-  /**
-   * 顶部栏信息*/
-  @State
+  @Local gs: GlobalState = globalState()
+  @Local
   topTabList: BarClass[] = TabList
   tabController: TabsController = new TabsController()
-  @Consume
-  IndexX: number | string
-  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
-  @Consume
-  dialogBgColor: string
+  @Consumer('IndexX')
+  indexX: number | string = ''
+  @Consumer('dialogBgColor')
+  dialogBgColor: ResourceColor = ''
+  @Consumer('commentDialogHeight')
+  commentDialogHeight: number = 0
 
   @Builder
   titleCommon(item: BarClass, index: number) {
@@ -49,64 +48,42 @@ export struct TopBar {
     }
   }
 
-  /**
-   * 打开左侧边栏*/
   openLeftSideBar() {
     this.getUIContext().animateTo({ duration: 200 }, () => {
-      this.showDialog = !this.showDialog
+      this.gs.showDialog = !this.gs.showDialog
       this.dialogBgColor = '#80000000'
-      //更改坐标轴
-      this.IndexX = '70%'
+      this.indexX = '70%'
     })
   }
 
-  /**
-   * 进入搜索页*/
   clickSearch() {
-    this.getUIContext().getRouter().pushUrl({
-      url: Constants.LOADING_SEARCH,
-      params: {
-        name: "搜你想看的"
-      }
-    })
+    common.nav(Constants.ROUTE_SEARCH, { name: "搜你想看的" } as SearchParams)
   }
 
-  /**
-   * 顶部列表项数据*/
-  private tabListData = new DataSource(this.topTabList)
-  /**
-   * 顶部栏主要内容总宽度*/
-  private barContentWidth: number = AppStorage.get(Constants.SCREEN_WIDTH) as number - 100
-  /**
-   * 顶部列表滚动控制器*/
+  private tabListData = new DataSource<BarClass>(this.topTabList)
   private classifyScroller: Scroller = new Scroller()
   /**
    * 顶部栏列表可视区域的起始索引和终点索引*/
-  tagIndexPosition: ListIndexPosition = { start: 0, end: 0 } // 一级列表可视区域的起始索引和终点索引
+  tagIndexPosition: ListIndexPosition = { start: 0, end: 0 }
   /**
-   * 顶部导航栏焦点索引值 当前索引
+   * 顶部导航栏焦点索引值 当前索引 由父组件双向绑定
    * */
-  @Link
-  @Watch('onIndexChange')
-  topNavCurrentIndex: number
-  @Provide
+  @Require
+  @Param
+  topNavCurrentIndex: number = 0
+  @Event
+  $topNavCurrentIndex: (index: number) => void = (index: number) => {
+  }
+  @Provider('isShowRightSideBar')
   isShowRightSideBar: boolean = true
   //交叉渐变三元组:起始tab索引、目标tab索引、0~1进度由逐帧回调写入 起始tab同时是下划线当前挂靠的那一项文字明暗/虚化、下划线颜色与滑动偏移都按进度插值
-  @State fadeFrom: number = 0
-  @State fadeTarget: number = 0
-  @State fadeProgress: number = 0
-  /**
-   * 下划线宽度、高度与文字间距*/
+  @Local fadeFrom: number = 0
+  @Local fadeTarget: number = 0
+  @Local fadeProgress: number = 0
   private indicatorW: number = 30
   private indicatorH: number = 3
   private indicatorGap: number = 4
-  /**
-   * 顶部列表项间距*/
   private listSpace: number = 15
-  /**
-   * 内容区宽度 用于把手指拖动距离换算成翻页进度*/
-  @StorageProp(Constants.SCREEN_WIDTH)
-  private contentWidth: number = 0
   /**
    * 是否正在播点击切换的下划线滑动动画 期间内容停稳的回调不再归位渐变*/
   private tapSliding: boolean = false
@@ -114,6 +91,13 @@ export struct TopBar {
   aboutToAppear(): void {
     //首帧就把下划线挂到当前tab 位置由该tab自身布局给出 无需等rect
     this.setFade(this.topNavCurrentIndex, this.topNavCurrentIndex, 0)
+  }
+
+  /**
+   * 顶部主要内容区宽度 用于把手指拖动距离换算成翻页进度
+   * 两侧各留出图标与边距*/
+  barContentWidth(): number {
+    return this.gs.screenWidth - 100
   }
 
   /**
@@ -194,7 +178,7 @@ export struct TopBar {
   /**
    * 手指拖动翻页时逐帧回调 currentOffset单位vp 除以页宽即比例*/
   onSwipeFollow(index: number, extraInfo: TabsAnimationEvent) {
-    this.driveIndicatorByRatio(index, extraInfo.currentOffset / this.contentWidth)
+    this.driveIndicatorByRatio(index, extraInfo.currentOffset / this.gs.screenWidth)
   }
 
   /**
@@ -208,6 +192,7 @@ export struct TopBar {
 
   /**
    * 索引变化时把选中项滚进可视区 下划线随该项的布局一起过去*/
+  @Monitor('topNavCurrentIndex')
   onIndexChange() {
     this.scrollTabIntoView()
   }
@@ -216,7 +201,7 @@ export struct TopBar {
    * 选中项贴近顶部列表可视区边缘时把列表滚过去*/
   scrollTabIntoView() {
     const current = this.topNavCurrentIndex
-    const c = current === (this.tagIndexPosition.start||this.tagIndexPosition.end)
+    const c = current === (this.tagIndexPosition.start || this.tagIndexPosition.end)
     if (c || current === this.tagIndexPosition.end - 1) {
       this.classifyScroller.scrollToIndex(this.clampIndex(current + 2), true) //获焦item向左滚动
     }
@@ -231,8 +216,6 @@ export struct TopBar {
     return Math.min(Math.max(index, 0), this.topTabList.length - 1)
   }
 
-  /**
-   * 顶部栏主要内容*/
   @Builder
   barMainContent() {
     List({ space: this.listSpace, initialIndex: this.topNavCurrentIndex, scroller: this.classifyScroller }) {
@@ -248,7 +231,7 @@ export struct TopBar {
     .edgeEffect(EdgeEffect.None)
     .scrollBar(BarState.Off)
     .listDirection(Axis.Horizontal)
-    .width(this.barContentWidth)
+    .width(this.barContentWidth())
     .height(50)
     .padding({ top: 15, left: 5, right: 5 })
   }
@@ -282,14 +265,10 @@ export struct TopBar {
     this.isFeedTab(index) ? this.startVideo() : this.pauseVideo()
   }
 
-  /**
-   * 播放视频*/
   startVideo() {
     TikTokEmitter.Emitter_VideoCrl(true)
   }
 
-  /**
-   * 暂停视频*/
   pauseVideo() {
     TikTokEmitter.Emitter_VideoCrl(false)
   }
@@ -299,7 +278,7 @@ export struct TopBar {
   @Builder
   tabBody(item: BarClass) {
     if (item.name === BtnName.SHOP || item.name === BtnName.LOT_OF_BUY) {
-      Shop()
+      ShopPage()
     } else if (item.name === BtnName.FOR_YOU) {
       RecommendPage()
     } else {
@@ -307,9 +286,15 @@ export struct TopBar {
     }
   }
 
+  /**
+   * 评论弹层打开时顶栏只留搜索按钮 收起后自动恢复*/
+  isBarContentShown(): boolean {
+    return this.isShowRightSideBar && this.commentDialogHeight === 0
+  }
+
   build() {
     Stack() {
-      Tabs({ index: $$this.topNavCurrentIndex, controller: this.tabController, barPosition: BarPosition.Start }) {
+      Tabs({ index: this.topNavCurrentIndex, controller: this.tabController, barPosition: BarPosition.Start }) {
         ForEach(this.topTabList, (item: BarClass) => {
           TabContent() {
             this.tabBody(item)
@@ -325,11 +310,13 @@ export struct TopBar {
       .onContentDidScroll((selectedIndex: number, index: number, position: number, mainAxisLength: number) => {
         this.onContentScroll(selectedIndex, index, position, mainAxisLength)
       })
-      .onChange(() => {
-        this.isFeedTab(this.topNavCurrentIndex) ? this.startVideo() : this.pauseVideo()
+      .onChange((index: number) => {
+        //切换结果回抛给父组件 由@Monitor统一处理滚进可视区
+        this.$topNavCurrentIndex(index)
+        this.isFeedTab(index) ? this.startVideo() : this.pauseVideo()
       })
       .height('106%')
-      .position({ y: -this.topHeight })
+      .position({ y: -this.gs.areaHeight })
 
       //自定义组件覆盖原来的tabs
       HeadBar({
@@ -346,10 +333,10 @@ export struct TopBar {
         BarMainContent: () => {
           this.barMainContent()
         },
-        isShowLeftIcon: this.isShowRightSideBar,
-        isShowMainContent: this.isShowRightSideBar
+        isShowLeftIcon: this.isBarContentShown(),
+        isShowMainContent: this.isBarContentShown()
       })
-        .position({ y: this.topHeight + 10 })
+        .position({ y: this.gs.areaHeight + 10 })
     }.position({ y: '-2.5%' })
   }
 }

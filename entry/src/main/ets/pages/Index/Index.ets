@@ -1,8 +1,6 @@
 import { BarClass } from '../../models'
 import { bottomNav, Card, CardItem, iconContent, SideBarCom } from '../../components'
-import { C, tipDialog } from '../../common/Function/commonFn'
-import { UIAbilityContext } from '@kit.AbilityKit'
-import { Constants } from '../../common/Constants'
+import { AppEnv, GlobalState, globalState, tipDialog } from '../../common'
 import {
   commonFnItemData,
   commonlyUsedAppletsItemData,
@@ -12,28 +10,39 @@ import {
 } from './indexMenuData'
 
 @Entry
-@Component
+@ComponentV2
 struct Index {
   /**
    * 记录返回时间*/
   backTime: number = 0
+  @Local gs: GlobalState = globalState()
+  /**
+   * Navigation的路由栈 全应用唯一 与AppEnv是同一个实例
+   * 页面内外都通过common.nav/back跳转*/
+  pathStack: NavPathStack = AppEnv.pathStack
 
   onBackPress(): boolean | void {
     let now = Date.now() //获取时间戳
     //1秒内重复触发就退出程序
     if (now - this.backTime < 1000) {
-      //获取声明公共UI能力上下文方法
-      const ctx = getContext(this) as UIAbilityContext
-      ctx.terminateSelf() //终止程序
+      AppEnv.context?.terminateSelf() //终止程序
     } else {
       this.backTime = now
       tipDialog('再按一次退出', 2000, Alignment.Top)
     }
-    return true //使用自定义功能而非router
+    return true //路由栈为空时用自定义功能而非Navigation
   }
 
-  @Provide
-  IndexX: number | string = '' //整个index页面的x坐标
+  @Provider('IndexX')
+  indexX: number | string = '' //整个index页面的x坐标
+  /**
+   * 评论弹层高度vp 由CommentDialog写入 视频页据此顶起画面、收起顶栏与侧栏*/
+  @Provider('commentDialogHeight')
+  commentDialogHeight: number = 0
+  /**
+   * 评论弹层是否正被拖动 拖动期间视频跟随手指即时变化 不做补间*/
+  @Provider('commentDialogDragging')
+  commentDialogDragging: boolean = false
   /**
    * 默认提示内容功能*/
   @BuilderParam
@@ -148,7 +157,7 @@ struct Index {
     CardItem({
       icon: item.icon,
       leftTitle: item.title,
-      rightContent: item.rightContent
+      rightContent: item.rightContent ?? ''
     })
       .onClick(() => {
         item.click && item.click()
@@ -192,42 +201,51 @@ struct Index {
   }
 
   aboutToAppear(): void {
-    AppStorage.setOrCreate(Constants.GET_CONTEXT, this.getUIContext().getHostContext() as C)
-    AppStorage.setOrCreate(Constants.GET_UI_CONTEXT, this.getUIContext())
+    AppEnv.uiContext = this.getUIContext()
   }
 
   build() {
-    Column() {
-      //底部导航栏
-      bottomNav()
-      //左侧边栏
-      SideBarCom({
-        sidePositionX: '-70%',
-        topContentArea: () => {
-          this.topContent()
-        },
-        itemData: leftCardData,
-        contentItem: (item: object) => {
-          this.CardBox(item as BarClass)
-        },
-        sideBgColor: '#ffefefef',
-        sideBottom: 0,
-        sideLeft: 0,
-        sideRight: 0
-      })
-      //右侧边栏
-      SideBarCom({
-        sidePositionX: "100%",
-        itemData: rightItemData,
-        contentItem: (item: object) => {
-          this.rightSidebar(item as BarClass)
-        },
-        contentMore: () => {
-          this.moreFn()
-        }
-      })
+    Navigation(this.pathStack) {
+      Column() {
+        //底部导航栏
+        bottomNav()
+        //左侧边栏
+        SideBarCom({
+          sidePositionX: '-70%',
+          topContentArea: () => {
+            this.topContent()
+          },
+          itemData: leftCardData,
+          contentItem: (item: object) => {
+            this.Content(item as BarClass)
+          },
+          sideBgColor: '#ffefefef',
+          sideBottom: 0,
+          sideLeft: 0,
+          sideRight: 0
+        })
+        //右侧边栏
+        SideBarCom({
+          sidePositionX: "100%",
+          itemData: rightItemData,
+          contentItem: (item: object) => {
+            this.rightSidebar(item as BarClass)
+          },
+          contentMore: () => {
+            this.moreFn()
+          }
+        })
+      }
+      //整个页面的坐标
+      .translate({ x: this.indexX })
     }
-    //整个页面的坐标
-    .translate({ x: this.IndexX })
+    .mode(NavigationMode.Stack)
+    .hideTitleBar(true)
+    .hideNavBar(false)
+  }
+
+  @Builder
+  Content(item: BarClass) {
+    this.CardBox(item)
   }
 }

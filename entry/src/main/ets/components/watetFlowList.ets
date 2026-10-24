@@ -5,13 +5,13 @@ import { shopComp } from './shopComp'
 /**
  * 底部footer
  * @param title 标签 */
-@Component
+@ComponentV2
 struct Footer {
   @Require
-  @Prop
+  @Param
   title: string = ''
   @Require
-  @Prop
+  @Param
   flag: boolean
 
   build() {
@@ -32,15 +32,16 @@ struct Footer {
  * @param item 懒加载后的数据源
  * @function onReach 触底事件
  */
-@Component
+@ComponentV2
 export struct waterFlowList {
+  @Event
   onReach: () => void = () => {
   }
   @Require
-  @Prop
+  @Param
   flag: boolean
   @Require
-  @State
+  @Param
   item: DataSource<object> | null = null
   @BuilderParam
   waterFlowItem: (item: object, index: number) => void = this.flowItem

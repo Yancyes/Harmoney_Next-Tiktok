@@ -4,11 +4,11 @@ import { BarClass } from "../models"
 /**
  * icon类图标统一结构
  * @param itemData 数据源 */
-@Component
+@ComponentV2
 export struct iconContent {
   @Require
-  @Prop
-  itemData: object[]
+  @Param
+  itemData: BarClass[] = []
 
   build() {
     Grid() {

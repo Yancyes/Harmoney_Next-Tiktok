@@ -5,7 +5,7 @@ export * from './sidebarData'
 
 export { commentData, commentDataModel } from './commentData'
 
-export { UserInfo, UserInfoModel } from './user'
+export { UserInfo, UserInfoModel, netAvatars, nickNames, userToPlain } from './user'
 
 export { DataSource } from './DataSource'
 

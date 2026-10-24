@@ -3,11 +3,12 @@
  * 接口结构必须和发请求的接口一致
  * */
 export interface ChatResponse{
+  status: number
   message: string
   data:ChatData
 }
 export interface ChatData{
-  type: number
+  type: string
   info:ChatInfo
 }
 export interface ChatInfo{

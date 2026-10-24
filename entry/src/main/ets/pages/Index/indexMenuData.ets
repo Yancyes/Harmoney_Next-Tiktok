@@ -222,7 +222,7 @@ const rightItemData: BarClass[] = [
     icon: $r('app.media.icon_setting'),
     title: "设置",
     click: () => {
-      common.nav(Constants.LOADING_SETTING)
+      common.nav(Constants.ROUTE_SETTING)
     }
   },
   {

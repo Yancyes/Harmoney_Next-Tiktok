@@ -1,7 +1,8 @@
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { display, KeyboardAvoidMode, window } from '@kit.ArkUI';
 import { Tiktok } from '../utils/setting';
-import { CURRENT_USER } from '../constants';
+import { AppEnv } from '../common/AppEnv';
+import { globalState } from '../common/GlobalState';
 import { Constants } from '../common/Constants';
 import dayjs from 'dayjs';
 import { Log } from '@abner/log';
@@ -18,8 +19,10 @@ export default class EntryAbility extends UIAbility {
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
     Log.info('ability onWindowStageCreate');
+    //首选项仓库与rawfile读取都从这里取context 早于任何组件构造
+    AppEnv.context = this.context
     const win = windowStage.getMainWindowSync()
-    this.storeCurrentUser()
+    this.initCurrentUser()
     this.storeScreenMetrics(win)
     //设置窗口全屏
     win.setWindowLayoutFullScreen(true)
@@ -60,21 +63,21 @@ export default class EntryAbility extends UIAbility {
   }
 
   /**
-   * 将当前用户信息写入全局存储*/
-  private storeCurrentUser(): void {
-    AppStorage.setOrCreate(CURRENT_USER, new Tiktok(this.context).getCurrentUser())
+   * 把首选项里的登录态同步进全局状态 未登录时为空模型*/
+  private initCurrentUser(): void {
+    globalState().currentUser = new Tiktok(this.context).getCurrentUser()
   }
 
   /**
-   * 将屏幕宽度、安全区高度等布局尺寸写入全局存储
+   * 将屏幕宽度、安全区高度等布局尺寸写入全局状态
    * 通过屏幕像素密度换算vp 不依赖UIContext 保证页面创建前即可读取*/
   private storeScreenMetrics(win: window.Window): void {
     const displayInfo = display.getDefaultDisplaySync()
     const px2vp = (px: number): number => px / displayInfo.densityPixels
     const safeArea = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM)
-    AppStorage.setOrCreate(Constants.SCREEN_WIDTH, px2vp(displayInfo.width))
-    AppStorage.setOrCreate(Constants.BTN_TITLE_WIDTH, 0)
-    AppStorage.setOrCreate(Constants.AREA_HEIGHT, px2vp(safeArea.topRect.height))
-    AppStorage.setOrCreate(Constants.BOTTOM_HEIGHT, px2vp(safeArea.bottomRect.height))
+    const state = globalState()
+    state.screenWidth = px2vp(displayInfo.width)
+    state.areaHeight = px2vp(safeArea.topRect.height)
+    state.bottomHeight = px2vp(safeArea.bottomRect.height)
   }
 }

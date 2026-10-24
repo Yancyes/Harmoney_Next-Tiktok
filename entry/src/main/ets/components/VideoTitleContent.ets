@@ -1,10 +1,10 @@
 /**
  * @param title 视频标题
  * @param describe 视频描述 */
-@Component
+@ComponentV2
 export struct VideoDescribe {
-  @Require @Prop title: ResourceStr //视频标题
-  @Require @Prop describe: string //视频描述
+  @Require @Param title: ResourceStr = '' //视频标题
+  @Require @Param describe: string = '' //视频描述
 
   build() {
     Column() {

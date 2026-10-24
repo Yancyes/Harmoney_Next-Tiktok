@@ -1,17 +1,18 @@
-@Component
+@ComponentV2
 export struct TitleTipBtn {
-  @Prop
+  @Param
   title: string = ''
-  @Prop
+  @Param
   w: Length = 40
-  @Prop
+  @Param
   h: Length = 40
-  @Prop
+  @Param
   br: Length = 30
-  @Prop
-  op:number=.5
+  @Param
+  op: number = .5
   @BuilderParam
   img: () => void
+
   build() {
     Row({ space: 5 }) {
       if (this.img) {

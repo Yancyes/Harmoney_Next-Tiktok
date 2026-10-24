@@ -9,13 +9,13 @@ export interface sideData {
   isLike?: boolean //是否点赞
 }
 
-@Observed
+@ObservedV2
 export class sideDataModel implements sideData {
-  @Track name: string = ''
-  @Track imgUrl: ResourceStr = ''
-  @Track Num?: number = 0
+  @Trace name: string = ''
+  @Trace imgUrl: ResourceStr = ''
+  @Trace Num?: number = 0
   click: () => void
-  @Track isLike?: boolean = false
+  @Trace isLike?: boolean = false
 
   constructor(model: sideData) {
     this.name = model.name

@@ -2,10 +2,11 @@ import { Constants } from '../common'
 
 /**
  * 滑动条组件*/
-@Component
+@ComponentV2
 export struct scrollbar {
   @Require
-  scroller: Scroller | null = null
+  @Param
+  scroller: Scroller
 
   build() {
     ScrollBar({ scroller: this.scroller, direction: ScrollBarDirection.Horizontal, state: BarState.On }) {

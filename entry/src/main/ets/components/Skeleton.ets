@@ -1,8 +1,8 @@
 @Preview
-@Component
+@ComponentV2
 struct Skeleton {
   timer: number = -1
-  @State
+  @Local
   currentColor: string = "#ffcce730"
 
   aboutToAppear(): void {

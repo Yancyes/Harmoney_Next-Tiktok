@@ -1,30 +1,64 @@
 import { ImgComp, LikeTextCount } from '.'
 import { common, Constants } from '../common'
-import { commentDataModel, mediaType } from '../models'
+import { commentDataModel } from '../models'
 import { tiktokChatStory } from '../utils'
 
 /**
  * 评论区内容组件*/
-@Component
+@ComponentV2
 export struct Comment {
-  @ObjectLink
+  @Require
+  @Param
   item: commentDataModel
-  @Link
-  videoItem: mediaType
-
+  /**
+   * 评论所属视频的uri 点赞按uri回写仓库*/
+  @Require
+  @Param
+  videoUri: string = ''
+  /**
+   * 删除本条评论 列表与首选项都由父组件维护*/
+  @Event
+  deleteComment: (item: commentDataModel) => void = () => {
+  }
+  /**
+   * 长按弹出的删除气泡显隐*/
+  @Local
+  showDeleteTip: boolean = false
+  /**
+   * 气泡内容 由返回值给对象字面量提供上下文类型*/
+  deleteTip(): PopupOptions {
+    return {
+      message: '删除该评论',
+      placement: Placement.Top,
+      targetSpace: 12,
+      enableArrow: true,
+      mask: false,
+      primaryButton: {
+        value: '删除',
+        action: () => {
+          this.deleteComment(this.item)
+        }
+      },
+      secondaryButton: {
+        value: '取消',
+        action: () => {
+        }
+      }
+    }
+  }
   //点赞方法
   changeLike() {
     //如果点过赞
     this.item.likeFlag ? this.item.likeNum-- : this.item.likeNum++
     this.item.likeFlag = !this.item.likeFlag
     //修改首选项
-    tiktokChatStory.changeOneTiktokVideoCommentLike(this.videoItem.video.play_addr.uri, this.item.id as number,
-      this.item.likeNum,this.item.likeFlag)
+    tiktokChatStory.changeOneTiktokVideoCommentLike(this.videoUri, this.item.id as number,
+      this.item.likeNum, this.item.likeFlag)
   }
 
-  @State
+  @Local
   scaleX: number = 1
-  @State
+  @Local
   scaleY: number = 1
 
   /**
@@ -95,7 +129,10 @@ export struct Comment {
     .padding({
       left: 20, right: 20
     })
+    //长按整条评论弹出删除气泡
+    .gesture(LongPressGesture().onAction(() => {
+      this.showDeleteTip = true
+    }))
+    .bindPopup(this.showDeleteTip!!, this.deleteTip())
   }
 }
-
-

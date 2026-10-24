@@ -1,0 +1,44 @@
+{
+  "routerMap": [
+    {
+      "name": "Login",
+      "pageSourceFile": "src/main/ets/pages/Login/LoginPage.ets",
+      "buildFunction": "LoginPageBuilder"
+    },
+    {
+      "name": "Setting",
+      "pageSourceFile": "src/main/ets/pages/Setting/SettingPage.ets",
+      "buildFunction": "SettingPageBuilder"
+    },
+    {
+      "name": "Search",
+      "pageSourceFile": "src/main/ets/pages/Search/SearchPage.ets",
+      "buildFunction": "SearchPageBuilder"
+    },
+    {
+      "name": "ChatDetail",
+      "pageSourceFile": "src/main/ets/pages/ChatDetail/ChatDetail.ets",
+      "buildFunction": "ChatDetailBuilder"
+    },
+    {
+      "name": "Shop",
+      "pageSourceFile": "src/main/ets/pages/Shop/ShopPage.ets",
+      "buildFunction": "ShopPageBuilder"
+    },
+    {
+      "name": "ShopDetail",
+      "pageSourceFile": "src/main/ets/pages/Shop/ShopDetailPage.ets",
+      "buildFunction": "ShopDetailPageBuilder"
+    },
+    {
+      "name": "VdDetail",
+      "pageSourceFile": "src/main/ets/pages/My/VdDetail.ets",
+      "buildFunction": "VdDetailBuilder"
+    },
+    {
+      "name": "CommentDialog",
+      "pageSourceFile": "src/main/ets/pages/CommentDialog/CommentDialog.ets",
+      "buildFunction": "CommentDialogBuilder"
+    }
+  ]
+}

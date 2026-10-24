@@ -9,14 +9,14 @@ export interface UserInfo {
   content: string //聊天内容
 }
 
-@Observed
+@ObservedV2
 export class UserInfoModel implements UserInfo {
-  username: string = ''
-  password: string = ''
-  tiktokNub: number = 0
-  avatar: string = ''
-  user_id: string = ''
-  content: string = ''
+  @Trace username: string = ''
+  @Trace password: string = ''
+  @Trace tiktokNub: number = 0
+  @Trace avatar: string = ''
+  @Trace user_id: string = ''
+  @Trace content: string = ''
 
   constructor(model: UserInfo) {
     this.username = model.username
@@ -26,92 +26,60 @@ export class UserInfoModel implements UserInfo {
     this.user_id = model.user_id
     this.content = model.content
   }
+
+}
+
+export function userToPlain(user: UserInfoModel): UserInfo {
+  return {
+    username: user.username,
+    password: user.password,
+    tiktokNub: user.tiktokNub,
+    avatar: user.avatar,
+    user_id: user.user_id,
+    content: user.content
+  }
 }
 
 /**
- * 默认用户数据*/
-export const defaultUserInfo: UserInfo[] = [
-  {
-    username: "小趴菜",
-    password: '',
-    tiktokNub: 1000000001,
-    avatar: 'https://img2.baidu.com/it/u=2778471297,524433918&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
-    user_id: '1',
-    content: ''
-  },
-  {
-    username: 'boss',
-    password: '',
-    avatar: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2Fd064be90-6b8c-4a6d-9721-837206fbb4a7%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069489&t=c810057a56c27b5747e1e92bfde37799',
-    tiktokNub: 1000000002,
-    user_id: '2',
-    content: ''
-  },
-  {
-    username: '天使',
-    password: '',
-    avatar: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2Fabf9e746-a09c-4b08-bcba-1e347a370226%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069489&t=b47c00cad15f8dbdc390e82b95348ed2',
-    tiktokNub: 1000000003,
-    content: '',
-    user_id: '3',
-  },
-  {
-    username: '布兰德',
-    password: '',
-    avatar: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2Ff1d11ab1-35ff-4f2c-b9e9-3e0c996d34a2%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069489&t=e3234db982e8a36639d170fc5cec7848',
-    tiktokNub: 1000000004,
-    content: '',
-    user_id: '4'
-  },
-  {
-    username: '妈妈',
-    password: '',
-    tiktokNub: 1000000005,
-    avatar: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F9853de1a-3985-42e6-be59-849853318793%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069489&t=f960a72e50a399ddec92b18b3c7fc2d9',
-    content: '',
-    user_id: '5'
-  },
-  {
-    username: '兄弟',
-    password: '',
-    tiktokNub: 1000000006,
-    avatar: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2Fe9543d7c-02f3-484f-a3f0-5bfa8b2e6ef9%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069502&t=118303a29ce4a8ef2c1a496ae880b76b',
-    content: '',
-    user_id: '6'
-  },
-  {
-    username: '杰克',
-    password: '',
-    tiktokNub: 1000000007,
-    avatar: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F8d90d041-784a-407f-a82e-b851fafdf746%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069547&t=d374ebb6973f68b95ba345827a304455',
-    content: '',
-    user_id: '7'
-  },
-  {
-    username: '欧威',
-    password: '',
-    tiktokNub: 1000000008,
-    avatar: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F373c6d24-1f8b-4000-8dd9-8d8410c35e71%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069618&t=51805a82420593c2a3cda47b9f65a80e',
-    content: '',
-    user_id: '8'
-  },
-  {
-    username: '宝石',
-    password: '',
-    tiktokNub: 1000000009,
-    avatar: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2Fbb560b27-a0b7-4062-ae40-efe4e5a8a748%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069619&t=8605f8477712cf9c5a1159db0cd7dab4',
-    content: '',
-    user_id: '9'
-  },
-  {
-    username: '服饰A',
-    password: '',
-    tiktokNub: 1000000010,
-    avatar: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2Fdc2617f6-4a68-4d4a-8c54-8cbc84e3446a%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1708069619&t=a8b7b4f1e600d53e5547479d947b1809',
-    content: '',
-    user_id: '10'
-  }
+ * 可用的网络头像池
+ * 原先用的是百度图搜直链 带sec/t签名 过期后只返回52字节的占位gif 头像就成了空的
+ * randomuser.me的直链不带签名 不会失效*/
+export const netAvatars: string[] = [
+  'https://randomuser.me/api/portraits/men/32.jpg',
+  'https://randomuser.me/api/portraits/women/44.jpg',
+  'https://randomuser.me/api/portraits/men/75.jpg',
+  'https://randomuser.me/api/portraits/women/68.jpg',
+  'https://randomuser.me/api/portraits/men/12.jpg',
+  'https://randomuser.me/api/portraits/women/25.jpg',
+  'https://randomuser.me/api/portraits/men/41.jpg',
+  'https://randomuser.me/api/portraits/women/11.jpg',
+  'https://randomuser.me/api/portraits/men/86.jpg',
+  'https://randomuser.me/api/portraits/women/53.jpg',
+  'https://randomuser.me/api/portraits/men/3.jpg',
+  'https://randomuser.me/api/portraits/women/90.jpg'
 ]
+
+/**
+ * 联系人英文名池
+ * 顺序与netAvatars一一对应 性别要和头像对上*/
+export const nickNames: string[] = [
+  'Liam', 'Olivia', 'Noah', 'Emma', 'Oliver', 'Ava',
+  'Ethan', 'Sophia', 'Lucas', 'Mia', 'Mason', 'Isabella'
+]
+
+/**
+ * 默认用户数据
+ * 名字和头像按下标配对 冷启动后同一个人还是同一个名字同一张脸*/
+export const defaultUserInfo: UserInfo[] = nickNames.slice(0, 10).map((name: string, i: number): UserInfo => {
+  return {
+    username: name,
+    password: '',
+    tiktokNub: 1000000001 + i,
+    avatar: netAvatars[i],
+    user_id: `${i + 1}`,
+    content: ''
+  }
+})
 
 
 /**

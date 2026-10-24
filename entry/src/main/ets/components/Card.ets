@@ -1,7 +1,8 @@
 /**
  * 卡片*/
-@Component
+@ComponentV2
 export struct Card {
+  @Param
   bottomBorder: boolean = false
   /**
    * 卡片内容项*/
@@ -13,7 +14,9 @@ export struct Card {
   rightTip: () => void
   /**
    * 卡片标签*/
+  @Param
   leftTitle: string = ""
+  @Param
   bgColor: ResourceColor = Color.Transparent
 
   build() {

@@ -1,11 +1,9 @@
 /**
  * 弹窗组件*/
-@CustomDialog
-@Component
+@ComponentV2
 export struct customDialog {
-  controller: CustomDialogController
-  @Consume
-  dialogBgColor: ResourceColor
+  @Consumer('dialogBgColor')
+  dialogBgColor: ResourceColor = Color.Transparent
   @BuilderParam
   imgAvatar: () => void //头像
 

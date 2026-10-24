@@ -1,36 +1,12 @@
-import { BarClass, mediaType, MyPageOwnInfo, UserInfoModel } from '../../models'
-import { tiktok } from '../../utils/setting'
-import { tipDialog } from '../../common'
+import { BarClass, mediaType, MyPageOwnInfo } from '../../models'
+import { common, Constants, globalState, GlobalState, tipDialog } from '../../common'
 import { iconBtn, ImgComp, scrollbar, TitleTipBtn, VideoGrid } from '../../components'
-import { Constants } from '../../common/Constants'
 import { TiktokCollection, TiktokLike } from '../../utils'
 
-@Component
-export default struct MyPage {
-  @Consume
-  info: UserInfoModel
-
-  aboutToAppear(): void {
-    //因为首选项仓库中进行了判断返回不同数据 这里需要重新获取用户信息数据
-    this.info = tiktok.getCurrentUser()
-    //重新赋值宽度
-    AppStorage.set(Constants.BTN_TITLE_WIDTH, AppStorage.get(Constants.SCREEN_WIDTH) as number / this.personVd.length)
-  }
-
-  //背景视频地址
-  @State
-  videoBgUrl: string = ''
-  @State video_collection: mediaType[] = []
-  @State video_like: mediaType[] = []
-
-  @Styles
-  imgBg(){
-    .width(16).height(16)
-  }
-
-  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
-  @Consume
-  dialogBgColor: ResourceColor
+/**
+ * 我的页 只作为底部导航的一个子页使用 不是路由入口*/
+@ComponentV2
+export struct MyPage {
   /**
    * 我的界面顶部信息title*/
   private infoTitle: BarClass[] = [
@@ -44,7 +20,7 @@ export default struct MyPage {
   private MyOwnInfo: BarClass[] = [
     {
       icon: $r('app.media.icon_shopCar'), title: '抖音商城', click: () => {
-      this.getUIContext().getRouter().pushUrl({ url: Constants.LOADING_SHOP })
+      common.nav(Constants.ROUTE_SHOP)
     }
     },
     {
@@ -83,28 +59,37 @@ export default struct MyPage {
   /**
    * 我的界面个人作品区*/
   private personVd: BarClass[] = MyPageOwnInfo
-  @Consume
-  IndexX: number | string
-  @State
-  currentIndex: number = 0
   /**
-   * 按钮标签宽度*/
-  @StorageProp(Constants.BTN_TITLE_WIDTH)
-  btnTitleWidth: number = 0
-  tabController: TabsController = new TabsController()
+   * 滚动条控制器*/
+  scroll: Scroller = new Scroller()
+  @Local gs: GlobalState = globalState()
+  @Consumer('dialogBgColor')
+  dialogBgColor: ResourceColor = ''
+  @Consumer('IndexX')
+  indexX: number | string = ''
+  /**
+   * 背景视频地址*/
+  @Local
+  videoBgUrl: string = ''
+  @Local
+  video_collection: mediaType[] = []
+  @Local
+  video_like: mediaType[] = []
+  @Local
+  currentIndex: number = 0
+
+  aboutToAppear(): void {
+    //作品标签等分屏宽 宽度由屏宽均分得出
+    this.gs.btnTitleWidth = this.gs.screenWidth / this.personVd.length
+  }
 
   /**
    * 打开右侧边栏*/
   openRightSideBar() {
-    this.showDialog = true
+    this.gs.showDialog = true
     this.dialogBgColor = Constants.COLOR_OpacityBlack
-    this.IndexX = '-65%'
+    this.indexX = '-65%'
   }
-
-  /**
-   * 滚动条控制器
-   * */
-  scroll: Scroller = new Scroller()
 
   @Builder
   newPerson() {
@@ -128,6 +113,17 @@ export default struct MyPage {
       imgWidth: 16,
       imgSrc: $r("app.media.icon_Tab")
     })
+  }
+
+  @Builder
+  tab(index: number) {
+    if (index === 3) {
+      VideoGrid({ data: this.video_collection })
+    } else if (index === 4) {
+      VideoGrid({ data: this.video_like })
+    } else {
+      VideoGrid()
+    }
   }
 
   build() {
@@ -195,7 +191,7 @@ export default struct MyPage {
                   ImgComp({
                     imgWidth: 100,
                     imgHeight: 100,
-                    imgSrc: this.info.avatar,
+                    imgSrc: this.gs.currentUser.avatar,
                     bordWidth: 3,
                     bordColor: Color.White,
                     bordRadius: 50,
@@ -203,14 +199,14 @@ export default struct MyPage {
                   })
                     .onClick(() => {
                       //打开自定义弹窗
-                      this.showDialog = true
+                      this.gs.showDialog = true
                       this.dialogBgColor = Color.Black
                     })
                 }
 
                 Column({ space: 5 }) {
-                  Text(this.info.username).fontColor(Color.White)
-                  Text(`抖音号:${this.info.tiktokNub}`)
+                  Text(this.gs.currentUser.username).fontColor(Color.White)
+                  Text(`抖音号:${this.gs.currentUser.tiktokNub}`)
                     .fontColor(Color.Gray)
                     .fontSize(16)
                 }.width('100%').alignItems(HorizontalAlign.Start)
@@ -241,7 +237,7 @@ export default struct MyPage {
 
           //个人介绍
           Row() {
-            Text('I‘m form UK❥(^_-)').fontSize(14)
+            Text('university of CFEC').fontSize(14)
               .fontColor(Color.Black).textAlign(TextAlign.Start)
           }.width('100%').padding(10)
 
@@ -266,26 +262,16 @@ export default struct MyPage {
           scrollbar({ scroller: this.scroll })
 
           Stack() {
-            Tabs({ barPosition: BarPosition.Start, index: $$this.currentIndex }) {
+            Tabs({ barPosition: BarPosition.Start, index: this.currentIndex!! }) {
               ForEach(this.personVd, (item: BarClass, index: number) => {
                 TabContent() {
-                  if (index === 0) {
-                    VideoGrid()
-                  } else if (index === 1) {
-                    VideoGrid()
-                  } else if (index === 2) {
-                    VideoGrid()
-                  } else if (index === 3) {
-                    VideoGrid({ data: this.video_collection })
-                  } else {
-                    VideoGrid({ data: this.video_like })
-                  }
+                  this.tab(index)
                 }
                 .tabBar(SubTabBarStyle.of(item.title)
                   .indicator({
                     borderRadius: 10,
                     color: Color.Black,
-                    width: this.btnTitleWidth,
+                    width: this.gs.btnTitleWidth,
                     height: 4,
                     marginTop: 13
                   })
@@ -313,9 +299,9 @@ export default struct MyPage {
     .scrollBar(BarState.Off)
     .height('120%')
     .onVisibleAreaChange([0, 1], (isVisible: boolean, currentRatio: number) => {
-      //完全离开页面时不需要重新解析首选项
+      //完全离开页面时不需要重新解析收藏/喜欢数据
       if (isVisible && currentRatio > 0) {
-        this.videoBgUrl = AppStorage.get(Constants.GET_VIDEO_IMG_URL)!
+        this.videoBgUrl = this.gs.videoBgUrl
         //添加收藏数据
         this.video_collection = TiktokCollection.getCollectionData()
         //添加喜欢数据
@@ -325,8 +311,8 @@ export default struct MyPage {
     //修改整个页面的坐标
     .onClick(() => {
       this.getUIContext().animateTo({ duration: 200 }, () => {
-        if (this.IndexX === '-65%') {
-          this.IndexX = '0%'
+        if (this.indexX === '-65%') {
+          this.indexX = '0%'
         }
       })
     })

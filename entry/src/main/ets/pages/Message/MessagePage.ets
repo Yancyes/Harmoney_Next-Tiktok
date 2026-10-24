@@ -1,23 +1,21 @@
 import { UserInfo } from '../../models/user'
 import { tiktok } from '../../utils/setting'
-import { common } from '../../common'
+import { common, Constants, globalState, GlobalState } from '../../common'
 import { ContactRow } from '../../components/ContactRow'
 import { HeadBar } from '../../components'
-import { Constants } from '../../common/Constants'
+import { SearchParams } from '../Search/SearchPage'
 
 /**
  * 消息页面 只作为底部导航的一个子页使用 不是路由入口*/
-@Component
+@ComponentV2
 export struct MessagePage {
-  @State
+  @Local
   userList: UserInfo[] = [] //渲染默认用户列表
-  @Consume
-  dialogBgColor: string
-  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
-  @Consume
-  IndexX: number | string
-  @StorageProp(Constants.AREA_HEIGHT)
-  topArea: number = 0
+  @Consumer('dialogBgColor')
+  dialogBgColor: ResourceColor = ''
+  @Consumer('IndexX')
+  indexX: number | string = ''
+  @Local gs: GlobalState = globalState()
 
   aboutToAppear(): void {
     this.getUserList()
@@ -27,22 +25,17 @@ export struct MessagePage {
     this.userList = tiktok.getTikTokConnect()
   }
 
-  /**
-   * 搜索联系人*/
   searchConcat() {
-    common.nav(Constants.LOADING_SEARCH, {
+    common.nav(Constants.ROUTE_SEARCH, {
       name: '搜索'
-    } as Record<string, string>)
+    } as SearchParams)
   }
 
-  /**
-   * 打开左侧边栏*/
   openLeftSideBar() {
-    animateTo({ duration: 200 }, () => {
-      this.showDialog = !this.showDialog
+    this.getUIContext().animateTo({ duration: 200 }, () => {
+      this.gs.showDialog = !this.gs.showDialog
       this.dialogBgColor = Constants.COLOR_OpacityBlack
-      //更改坐标轴
-      this.IndexX = '70%'
+      this.indexX = '70%'
     })
   }
 
@@ -65,7 +58,7 @@ export struct MessagePage {
             ContactRow({ item: item })
           }
           .onClick(() => {
-            common.nav(Constants.LOADING_ChatDetail, item)
+            common.nav(Constants.ROUTE_CHAT_DETAIL, item)
           })
         }, (item: UserInfo) => `${item.user_id}`)
       }.layoutWeight(1)
@@ -78,6 +71,6 @@ export struct MessagePage {
       })
 
     }.width('100%').height('100%')
-    .margin({ top: this.topArea })
+    .margin({ top: this.gs.areaHeight })
   }
 }

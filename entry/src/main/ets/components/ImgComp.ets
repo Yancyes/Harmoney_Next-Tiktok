@@ -3,39 +3,58 @@ import { image } from '@kit.ImageKit'
 
 /**
  * 二次封装的图片组件*/
-@Component
+@ComponentV2
 export struct ImgComp {
   @Require
-  @Prop
+  @Param
   imgSrc: image.PixelMap | ResourceStr | DrawableDescriptor = '' //图片地址
   @Require
-  @Prop
+  @Param
   imgWidth: Length = 0 //宽度
-  @Prop
+  @Param
   imgHeight: Length = 0 //高度
-  @Prop
+  @Param
   isFillColor: boolean = false //是否填充颜色
-  @Prop
+  @Param
   isDraggable: boolean = false //图片是否可拖拽
-  @Prop
+  @Param
   ImageFitType: ImageFit = ImageFit.Contain //图片压缩类型
-  @Prop
+  @Param
   color_1: ResourceColor = ''
-  @Prop
+  @Param
   color_2: ResourceColor = ''
-  @Prop
+  @Param
   bordWidth: number = 0
-  @Prop
+  @Param
   bordRadius: number = 0
-  @Prop
+  @Param
   bordColor: ResourceColor = ''
-  @Prop
+  @Param
   shadowValue: number | Resource = 0
-  @Prop
+  @Param
   shadowColor: string | Color | Resource | undefined = ''
+  /**
+   * 图片地址加载失败时的兜底地址 空表示不兜底 只有头像这类网络图才需要传*/
+  @Param
+  fallbackSrc: string = ''
+  /**
+   * 实际渲染的地址 @Param不能自改 所以镜像一份用于失败替换*/
+  @Local
+  src: image.PixelMap | ResourceStr | DrawableDescriptor = ''
+
+  aboutToAppear(): void {
+    this.src = this.imgSrc
+  }
+
+  /**
+   * 父组件换人换图时重新同步 否则会一直显示上一张*/
+  @Monitor('imgSrc')
+  syncSrc(): void {
+    this.src = this.imgSrc
+  }
 
   build() {
-    Image(this.imgSrc)
+    Image(this.src)
       .draggable(this.isDraggable)
       .width(this.imgWidth)
       .height(this.imgHeight || null)
@@ -49,6 +68,12 @@ export struct ImgComp {
       .shadow({
         radius: this.shadowValue,
         color: this.shadowColor
+      })
+      .onError(() => {
+        //直链过期(带签名参数的图床)时Image只会画出一张空图 这里换成网络头像兜底
+        if (this.fallbackSrc && this.src !== this.fallbackSrc) {
+          this.src = this.fallbackSrc
+        }
       })
   }
 }

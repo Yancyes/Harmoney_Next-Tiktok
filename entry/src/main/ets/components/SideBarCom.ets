@@ -6,10 +6,10 @@
  * @param contentMore 更多功能插槽
  * */
 
-@Component
+@ComponentV2
 export struct SideBarCom {
   @Require
-  @State
+  @Param
   itemData: object[] = []
   /**
    * 侧边栏内容*/
@@ -23,11 +23,15 @@ export struct SideBarCom {
   topContentArea: () => void
   /**
    * 侧边栏位置*/
-  @State
+  @Param
   sidePositionX: string = ''
+  @Param
   sideBgColor: ResourceColor = Color.White
+  @Param
   sideBottom: number = 90
+  @Param
   sideLeft: number = 20
+  @Param
   sideRight: number = 20
 
   build() {

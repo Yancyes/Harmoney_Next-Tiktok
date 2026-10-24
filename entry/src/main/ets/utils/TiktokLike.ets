@@ -1,4 +1,5 @@
 import { Constants } from '../common/Constants'
+import { AppEnv } from '../common/AppEnv'
 import { P } from '../common/Function/commonFn'
 import { mediaType } from '../models'
 import { preferences } from '@kit.ArkData'
@@ -9,7 +10,7 @@ export class TiktokLike {
   private static storeName = 'TiktokLike-Store'
 
   private static getStore(): P {
-    return preferences.getPreferencesSync(AppStorage.get<Context>(Constants.GET_CONTEXT)!, {
+    return preferences.getPreferencesSync(AppEnv.context!, {
       name: TiktokLike.storeName
     })
   }

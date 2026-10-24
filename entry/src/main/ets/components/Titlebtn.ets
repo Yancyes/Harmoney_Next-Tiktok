@@ -1,9 +1,12 @@
 /**
  * 我的界面头像弹窗复用ui内容*/
-@Component
+@ComponentV2
 export struct TitleBtn {
+  @Param
   title: string = ''
+  @Param
   borBom: boolean = false
+  @Event
   click: () => void = () => {
   }
 

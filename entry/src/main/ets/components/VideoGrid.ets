@@ -1,4 +1,4 @@
-import { Constants } from '../common/Constants'
+import { common, Constants } from '../common'
 import { DataSource, mediaType } from '../models'
 
 /**
@@ -10,18 +10,21 @@ export interface VdDetailParams {
 
 /**
  * 视频栅格化组件*/
-@Component
+@ComponentV2
 export struct VideoGrid {
-  @Prop @Watch('onDataChange') data: object[] = []
-  @State lazyData: DataSource<mediaType> | null = null
+  @Param
+  data: mediaType[] = []
+  @Local lazyData: DataSource<mediaType> | null = null
+
   aboutToAppear(): void {
-    this.lazyData = new DataSource<mediaType>(this.data as mediaType[])
+    this.lazyData = new DataSource<mediaType>(this.data)
   }
 
   /**
    * 父组件更新data后 懒加载数据源不会自动重建 需reload刷新*/
+  @Monitor('data')
   onDataChange(): void {
-    this.lazyData?.reload(this.data as mediaType[])
+    this.lazyData?.reload(this.data)
   }
 
   build() {
@@ -30,17 +33,14 @@ export struct VideoGrid {
         WaterFlow() {
           LazyForEach(this.lazyData, (item: mediaType, index: number) => {
             FlowItem() {
-              Video({src:item.video.play_addr.url_list[0]}).vdSty()
-                .height(180).border({width:.5,color:Color.White})
-                .onClick(()=>{
+              Video({ src: item.video.play_addr.url_list[0] }).vdSty()
+                .height(180).border({ width: .5, color: Color.White })
+                .onClick(() => {
                   const params: VdDetailParams = {
-                    list: this.data as mediaType[],
+                    list: this.data,
                     index
                   }
-                  this.getUIContext().getRouter().pushUrl({
-                    url: Constants.VIDEO_DETAIL,
-                    params
-                  })
+                  common.nav(Constants.ROUTE_VIDEO_DETAIL, params)
                 })
             }
           })

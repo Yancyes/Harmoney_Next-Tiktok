@@ -2,11 +2,13 @@
  * 图标按钮组件*/
 import { ImgComp } from '.'
 
-@Component
+@ComponentV2
 export struct iconBtn {
   @Require
+  @Param
   icon: ResourceStr = ''
   @Require
+  @Param
   title: string = ''
 
   build() {

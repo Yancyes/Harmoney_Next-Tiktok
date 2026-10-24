@@ -1,48 +1,75 @@
 import { ImgComp } from '.'
-import { CURRENT_USER } from '../constants'
-import { UserInfo, UserInfoModel } from '../models'
-import { MessageInfo, MessageInfoModel } from '../models/message'
+import { common, GlobalState, globalState } from '../common'
+import { MessageInfoModel } from '../models/message'
 
 /**
  * 消息组件*/
-@Component
+@ComponentV2
 export default struct Message {
-  /**
-   * 当前用户*/
-  @StorageProp(CURRENT_USER)
-  currentUser: UserInfoModel = new UserInfoModel({} as UserInfo) //聊天用户
+  @Local gs: GlobalState = globalState() //当前登录用户
   @Require
-  @Prop
-  currentMessage: MessageInfoModel = new MessageInfoModel({} as MessageInfo) //当前消息
+  @Param
+  currentMessage: MessageInfoModel
+  /**
+   * 是否显示时间分隔 由父级按消息间隔算出*/
+  @Param
+  showTime: boolean = false
   /**
    * isOwnMessage是判断当前的登录用户id是否等于消息发送者的用户id设置元素的出现位置
-   * 用方法而不是@State currentMessage(@Prop)变化时才能重新判断*/
-  isOwnMessage(): boolean {
-    return this.currentUser.user_id === this.currentMessage?.sendUser?.user_id
+   * 用@Computed 登录用户或发送者变化时才会重新取值并驱动刷新*/
+  @Computed
+  get isOwnMessage(): boolean {
+    return this.gs.currentUser.user_id === this.currentMessage?.sendUser?.user_id
+  }
+
+  @Builder
+  Avatar() {
+    ImgComp({
+      imgWidth: 38,
+      imgHeight: 38,
+      bordRadius: 19,
+      //消息的发送者的头像 空头像用网络头像
+      imgSrc: common.avatar(this.currentMessage.sendUser?.avatar, this.currentMessage.sendUser?.user_id),
+      fallbackSrc: common.avatar('', this.currentMessage.sendUser?.user_id)
+    })
+  }
+
+  @Builder
+  Bubble() {
+    Text(this.currentMessage.messageContent)//消息的内容
+      .fontSize(16)
+      .fontColor(this.isOwnMessage ? Color.White : '#ff171717')
+      .backgroundColor(this.isOwnMessage ? '#fffe2c55' : Color.White)
+      .padding({ left: 14, right: 14, top: 9, bottom: 9 })
+      .borderRadius(14)
+      .constraintSize({ maxWidth: '70%' })
+      .textAlign(TextAlign.Start)
   }
 
   build() {
-    Row() {
-      ImgComp({
-        imgWidth: 50,
-        imgSrc: this.currentMessage.sendUser?.avatar //消息的发送者的头像
-      }).aspectRatio(1)
-        .borderRadius(25)
-      Row() {
-        Text(this.currentMessage.messageContent)//消息的内容
-          .backgroundColor(this.isOwnMessage() ? '#ff42ff0e' : '#ffe9e9e9')
-          .fontColor('#000')
-          .padding(10)
-          .margin({ left: 10, right: 10 })
-          .borderRadius(4)
-      }.justifyContent(this.isOwnMessage() ? FlexAlign.End : FlexAlign.Start)
-      .layoutWeight(6)
-
-      Text()
-        .layoutWeight(1)
-    }.padding({
-      left: 20, right: 20
-    }).alignItems(VerticalAlign.Top)
-    .direction(this.isOwnMessage() ? Direction.Rtl : Direction.Ltr)
+    Column() {
+      if (this.showTime) {
+        Text(common.formatMsgTime(this.currentMessage.sendTime))
+          .fontSize(12)
+          .fontColor('#ff9aa0a6')
+          .width('100%')
+          .textAlign(TextAlign.Center)
+          .margin({ bottom: 4 })
+      }
+      //左右位置由显式的if决定 不用direction(Rtl)翻转整行 那样连头像圆角都会被镜像
+      Row({ space: 10 }) {
+        if (!this.isOwnMessage) {
+          this.Avatar()
+        }
+        this.Bubble()
+        if (this.isOwnMessage) {
+          this.Avatar()
+        }
+      }
+      .width('100%')
+      .padding({ left: 16, right: 16 })
+      .justifyContent(this.isOwnMessage ? FlexAlign.End : FlexAlign.Start)
+      .alignItems(VerticalAlign.Top)
+    }
   }
 }

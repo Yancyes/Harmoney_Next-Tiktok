@@ -1,8 +1,7 @@
-import { commentDataModel, mediaType, sideData, sideDataModel } from '../models'
+import { mediaType, sideData, sideDataModel } from '../models'
 import { common, Constants, tipDialog } from '../common'
-import { Comment, ImgComp, LikeTextCount, ReplyBox, ReplyInput } from '.'
-import { util } from '@kit.ArkTS'
-import { tiktokChatStory, TiktokCollection, TiktokLike } from '../utils'
+import { ImgComp, LikeTextCount } from '.'
+import { TiktokCollection, TiktokLike } from '../utils'
 
 enum sideList {
   like,
@@ -13,34 +12,12 @@ enum sideList {
 
 /**
  * 视频功能侧边栏*/
-@Component
+@ComponentV2
 struct Sidebar {
-  @Consume
-  showCommentDialog: boolean
-  @Prop
+  @Require
+  @Param
   item: mediaType //视频数据
-  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
-
-  changeState(value: sideList) {
-    //取消点赞/收藏时数量应减 原逻辑方向写反
-    this.sideDataList[value].isLike ? this.sideDataList[value].Num!-- : this.sideDataList[value].Num!++
-    this.sideDataList[value].isLike = !this.sideDataList[value].isLike
-  }
-
-  @StorageLink(Constants.SCALE_SIZE) scaleSize: number = 1
-  @Consume
-  isShowRightSideBar: boolean
-  @Consume
-  dialogBgColor: ResourceColor
-  /**
-   * 模态弹层高度*/
-  @Consume dialogHeight: number
-  //评论的数据
-  @State commentList: commentDataModel[] = []
-  //评论内容
-  @State content: string = ''
-  //侧边栏图标和数据
-  @State
+  @Local
   sideDataList: sideDataModel[] = [
     new sideDataModel({
       name: '点赞',
@@ -58,9 +35,8 @@ struct Sidebar {
       imgUrl: $r('app.media.chat'),
       Num: this.item.statistics.comment_count,
       click: () => {
-        this.showCommentDialog = true //打开评论弹窗
-        this.isShowRightSideBar = false //隐藏顶部栏
-        this.dialogBgColor = Constants.COLOR_DIALOG_BG //修改弹层背景色
+        //抖音式半屏评论 不暂停视频 由VideoComp按弹层高度把画面顶起
+        common.nav(Constants.ROUTE_COMMENT_DIALOG, this.item.video.play_addr.uri)
       }
     }),
     new sideDataModel({
@@ -85,128 +61,33 @@ struct Sidebar {
     })
   ]
 
-  //添加评论方法
-  addComment(content: string) {
-    const now = new Date() //同一次提交用同一个时间 避免跨零点月份和日期不一致
-    const msg = new commentDataModel({
-      id: util.generateRandomUUID(),
-      avatar: 'https://picx.zhimg.com/027729d02bdf060e24973c3726fea9da_l.jpg?source=06d4cd63',
-      author: 'smallMiSu7',
-      content,
-      time: `${common.toStr(now.getMonth() + 1)}-${common.toStr(now.getDate())}`,
-      area: common.getRandomCity(),
-      likeNum: common.getRandom(99999 + 1),
-      likeFlag: false
-    })
-    //写到ui
-    this.commentList.unshift(msg)
-    //写入首选项
-    tiktokChatStory.addOneTiktokVideoComment(this.item.video.play_addr.uri, msg)
-  }
-
-  @Builder
-  endMegItem(item: commentDataModel, index: number) {
-    Row() {
-      Text('删除')
-        .width('100%').textAlign(TextAlign.Center)
-    }.backgroundColor(Color.Red)
-    .width('100')
-    .height('100%')
-    .onClick(() => {
-      this.commentList.splice(index, 1)
-      tiktokChatStory.delOneTiktokVideoComment(this.item.video.play_addr.uri, item.id as number)
-    })
-  }
-
-  /**
-   * 评论弹窗*/
-  @Builder
-  Dialog() {
-    Column() {
-      Row() {
-        Text(`${this.commentList.length}条评论`)
-          .fontColor(Color.Black)
-          .fontSize(16)
-      }.margin({
-        top: 50
-      })
-
-      List({ space: 20 }) {
-        ForEach(this.commentList, (item: commentDataModel, index: number) => {
-          ListItem() {
-            Comment({ item: item, videoItem: this.item })
-          }
-          .swipeAction({
-            end: this.endMegItem(item, index)
-          })
-        })
-      }.layoutWeight(1)
-      .scrollBar(BarState.Off)
-
-      ReplyBox() {
-        //评论组件
-        ReplyInput({
-          publishComment: (content: string) => {
-            this.addComment(content)
-          }, content: this.content,
-          iptContent: '善语结善缘,恶言伤人心',
-        }).layoutWeight(1)
-        Button('发送')
-          .backgroundColor(this.content ? '#fffd2217' : Color.White)
-          .border(this.content ? { radius: 20, width: 0 } : { width: .5, color: Color.Black })
-          .height(40)
-          .fontColor(this.content ? Color.White : Color.Gray)
-          .margin({ right: 15, bottom: 10 })
-          .animation({ duration: 200 })
-          .enabled(this.content ? true : false)
-          .onClick(() => {
-            this.addComment(this.content)
-            //清空输入框
-            this.content = ''
-          })
-      }
-    }.onAreaChange((_oldValue, newValue) => {
-      this.dialogHeight = newValue.height as number
-    })
-  }
-
-  aboutToAppear(): void {
-    //获取评论数据
-    this.commentList = tiktokChatStory.getOneTiktokVideoAllComment(this.item.video.play_addr.uri)
+  changeState(value: sideList) {
+    //取消点赞/收藏时数量应减 原逻辑方向写反
+    this.sideDataList[value].isLike ? this.sideDataList[value].Num!-- : this.sideDataList[value].Num!++
+    this.sideDataList[value].isLike = !this.sideDataList[value].isLike
   }
 
   build() {
-    //主内容
     Column() {
       ForEach(this.sideDataList, (item: sideData) => {
         sideIcon({ item: item })
       })
     }.height('100%')
     .zIndex(2)
-    .bindSheet($$this.showCommentDialog, this.Dialog, {
-      height: '65%',
-      backgroundColor: '#ffefecec',
-      keyboardAvoidMode: SheetKeyboardAvoidMode.RESIZE_ONLY,
-      shouldDismiss: () => {
-        this.showCommentDialog = false
-        this.isShowRightSideBar = true
-        this.showDialog = false
-        this.scaleSize = 1
-      }
-    })
     .position({ x: '82.5%', y: '50%' })
   }
 }
 
 export { Sidebar }
 
-@Component
+@ComponentV2
 struct sideIcon {
-  @ObjectLink
-  item: sideDataModel
-  @State
+  @Require
+  @Param
+  item: sideData
+  @Local
   scaleX: number = 1
-  @State
+  @Local
   scaleY: number = 1
 
   /**
@@ -235,7 +116,7 @@ struct sideIcon {
           this.change()
         })
         .animation({ duration: 200 })
-      LikeTextCount({ count: this.item.Num, isWhite: true })
+      LikeTextCount({ count: this.item.Num!, isWhite: true })
     }
   }
 }

@@ -2,15 +2,15 @@ import { ImgComp } from '.'
 import { shopType } from '../models'
 import { common, Constants } from '../common'
 
-@Reusable
-@Component
+@ReusableV2
+@ComponentV2
 export struct shopComp {
   @Require
-  @Prop
+  @Param
   item: shopType
-  //复用时普通成员不会更新 奇偶错落的高度会残留上一项
+  //复用时奇偶错落的高度会残留上一项 索引必须由父级重新传入
   @Require
-  @Prop
+  @Param
   index: number = 0
 
   build() {
@@ -26,11 +26,9 @@ export struct shopComp {
       Column() {
         Text(this.item.name)
         Row({ space: 5 }) {
-          //价格
           Text(`￥${this.item.price.toString()}`)
             .fontColor(Color.Red).fontSize(16)
             .fontWeight(600)
-          //已售
           Text(`已售${this.item.sold.toString()}`)
             .fontColor('#ff696868').fontSize(14)
         }
@@ -41,7 +39,7 @@ export struct shopComp {
         })
       }.margin(10)
     }.onClick(() => {
-      common.nav(Constants.SHOP_DETAIL, this.item)
+      common.nav(Constants.ROUTE_SHOP_DETAIL, this.item)
     })
   }
 }

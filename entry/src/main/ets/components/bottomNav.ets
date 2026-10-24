@@ -1,31 +1,27 @@
 import { Colm, customDialog, ImgComp, TitleBtn, TopBar } from '.'
-import { common, Constants, tipDialog } from '../common'
-import { BarClass, TabList } from '../models'
-import { UserInfoModel } from '../models/user'
+import { common, Constants, GlobalState, globalState, tipDialog } from '../common'
+import { BarClass, TabList, userToPlain } from '../models'
 import { MessagePage } from '../pages/Message/MessagePage'
 import { tiktok } from '../utils/setting'
-import MyPage from '../pages/My/My'
+import { MyPage } from '../pages/My/My'
 import { photoAccessHelper } from '@kit.MediaLibraryKit'
 import { TikTokEmitter } from '../utils/TIkTokEmitter'
 import { BtnType } from '../GlobalEnum'
 
-
-@Component
+@ComponentV2
 export struct bottomNav {
-  @StorageProp(Constants.BOTTOM_HEIGHT)
-  BtmAreaHeight: number = 0
+  @Local gs: GlobalState = globalState()
   /**
    * 顶部栏信息*/
   topTabList: BarClass[] = TabList
   /**
    * 顶部栏索引*/
-  @State
+  @Local
   topNavCurrentIndex: number = this.topTabList.length - 1
   /**
    * 是否显示上传弹窗*/
-  @State
+  @Local
   showUploadDialog: boolean = false
-  //底部tab的数据
   btmTabList: BarClass[] = [
     {
       title: '首页',
@@ -52,41 +48,28 @@ export struct bottomNav {
     }
   ]
   tabController: TabsController = new TabsController()
-  @State
+  @Local
   currentIndex: number = 0
-  //底部title字体的颜色
-  @State
+  @Local
   titleColor: ResourceColor[] = [Color.White, Color.Gray]
-  @StorageLink(Constants.SHOW_DIALOG) showDialog: boolean = false
-  @Provide
+  @Provider('dialogBgColor')
   dialogBgColor: ResourceColor = '' //修改渐变背景色只能通过#00000000的方式
-  @Provide
-  info: UserInfoModel = tiktok.getCurrentUser()
-  @Consume
-  IndexX: number | string //整个index页面的x坐标
-  @Provide
+  @Consumer('IndexX')
+  indexX: number | string = '' //整个index页面的x坐标
+  @Provider('isShowSpeed')
   isShowSpeed: boolean = false //是否显示倍速提示
-  /*
-   * 图片选择数量*/
   maxImgNumber: number = 1 //最多可选1张图片
 
-  aboutToAppear(): void {
-    AppStorage.setOrCreate(Constants.SHOW_DIALOG, this.showDialog)
-  }
-
-  /**
-   * 选择图片*/
   async selectPhoto() {
-    const photo = new photoAccessHelper.PhotoViewPicker(); //图片选择对象
+    const photo = new photoAccessHelper.PhotoViewPicker()
     const result = await photo.select({
-      MIMEType: photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE, //指定选择类型
-      maxSelectNumber: this.maxImgNumber  //最大数量
+      MIMEType: photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE,
+      maxSelectNumber: this.maxImgNumber
     })
-    //如果有图片 这里的业务只需要单个图片
     if (result.photoUris.length) {
-      this.info.avatar = result.photoUris.toString()
-      await tiktok.setCurrentUser(JSON.stringify(this.info)) //写入首选项
-      tiktok.syncCurrentUser(this.info) //同步全局状态 否则聊天页读到旧头像
+      const user = this.gs.currentUser
+      user.avatar = result.photoUris.toString()
+      await tiktok.setCurrentUser(JSON.stringify(userToPlain(user))) //写入首选项 全局状态是同一份引用 无需再同步
     }
   }
 
@@ -123,10 +106,10 @@ export struct bottomNav {
         .fontColor(Color.White)
         .fontWeight(100)
         .onClick(() => {
-          this.showDialog = false
+          this.gs.showDialog = false
         })
         .margin({ top: "5%", left: '-85%' })
-      Image(this.info.avatar)
+      Image(this.gs.currentUser.avatar)
         .draggable(true)
         .height('50%')
         .width('100%')
@@ -157,7 +140,6 @@ export struct bottomNav {
     }
   }
 
-  //底部tab的的结构
   @Builder
   bottomBar(item: BarClass, index: number) {
     Column() {
@@ -194,19 +176,19 @@ export struct bottomNav {
     })
   }
 
-  @Provide
+  @Provider('speedColor')
   speedColor: string = '#ff4e4e4e'
-  @Provide
+  @Provider('speedSize')
   speedSize: number = 16
 
   build() {
     Stack({ alignContent: Alignment.Bottom }) {
-      Tabs({ index: $$this.currentIndex, controller: this.tabController, barPosition: BarPosition.End }) {
+      Tabs({ index: this.currentIndex!!, controller: this.tabController, barPosition: BarPosition.End }) {
         ForEach(this.btmTabList, (item: BarClass) => {
           TabContent() {
             if (item.name === BtnType.Home) {
               TopBar({
-                topNavCurrentIndex: this.topNavCurrentIndex
+                topNavCurrentIndex: this.topNavCurrentIndex!!
               })
             } else if (item.name === BtnType.Friend) {
               Colm()
@@ -248,16 +230,14 @@ export struct bottomNav {
       }
       .width('100%')
       .height(75)
-      .margin({ bottom: this.BtmAreaHeight })
+      .margin({ bottom: this.gs.bottomHeight })
       .backgroundColor(Constants.COLOR_GrayNAV)
       .justifyContent(FlexAlign.SpaceAround)
-      //全屏模态弹窗
-      .bindContentCover($$this.showUploadDialog, this.contentDialog, {
+      .bindContentCover(this.showUploadDialog!!, this.contentDialog, {
         modalTransition: ModalTransition.DEFAULT
       })
 
-      //默认不显示遮罩层
-      if (this.showDialog) {
+      if (this.gs.showDialog) {
         customDialog({
           imgAvatar: () => {
             if (this.dialogBgColor === Color.Black) {
@@ -266,11 +246,11 @@ export struct bottomNav {
           }
         })
           .onClick(() => {
-            animateTo({ duration: 200 }, () => {
+            this.getUIContext().animateTo({ duration: 200 }, () => {
               //通过判断色值区别弹窗是哪个页面的再进行相应改变
               if (this.dialogBgColor !== Color.Black) {
-                this.showDialog = !this.showDialog
-                this.IndexX = '0%' //修改整个Index界面的x坐标
+                this.gs.showDialog = !this.gs.showDialog
+                this.indexX = '0%' //修改整个Index界面的x坐标
                 TikTokEmitter.Emitter_VideoCrl(true)
               }
             })

@@ -6,31 +6,35 @@ import { ImgComp } from '.'
  * @param isShowLeftIcon 是否显示左侧图标
  * @param isShowRightIcon 是否显示有右侧图标
  * @param isShowMainContent 是否显示主要内容*/
-@Component
+@ComponentV2
 export struct HeadBar {
   /**
    * 左侧图标*/
+  @Param
   LeftIcon: ResourceStr = ''
   /**
    * 右侧图标*/
+  @Param
   RightIcon: ResourceStr = ''
   /**
    * 左侧图标事件*/
+  @Event
   LeftIconClick: () => void = () => {
   }
   /**
    * 右侧图标事件*/
+  @Event
   RightIconClick: () => void = () => {
   }
   /**
    * 顶部栏内容区*/
   @BuilderParam
   BarMainContent: () => void
-  @Prop
+  @Param
   isShowLeftIcon: boolean = true
-  @Prop
+  @Param
   isShowRightIcon: boolean = true
-  @Prop
+  @Param
   isShowMainContent: boolean = true
 
   build() {

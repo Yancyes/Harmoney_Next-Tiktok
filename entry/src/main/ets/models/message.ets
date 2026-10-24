@@ -1,4 +1,4 @@
-import { UserInfo, UserInfoModel } from '.'
+import { UserInfo, UserInfoModel, userToPlain } from '.'
 import { util } from '@kit.ArkTS'
 /**
  * 消息类型枚举*/
@@ -27,15 +27,16 @@ export interface MessageInfo {
   sourceDuration: number // 音频或者视频的长度 单位s
 }
 
+@ObservedV2
 export class MessageInfoModel implements MessageInfo {
-  id: string = ''
-  sendUser: UserInfo = new UserInfoModel({} as UserInfo)
-  connectUser: UserInfo = new UserInfoModel({} as UserInfo)
-  messageContent: string = ''
-  sendTime: number = 0
-  messageType: MessageTypeEnum = MessageTypeEnum.TEXT
-  sourceFilePath: string = ''
-  sourceDuration: number = 0
+  @Trace id: string = ''
+  @Trace sendUser: UserInfo = new UserInfoModel({} as UserInfo)
+  @Trace connectUser: UserInfo = new UserInfoModel({} as UserInfo)
+  @Trace messageContent: string = ''
+  @Trace sendTime: number = 0
+  @Trace messageType: MessageTypeEnum = MessageTypeEnum.TEXT
+  @Trace sourceFilePath: string = ''
+  @Trace sourceDuration: number = 0
 
   constructor(model: MessageInfo) {
     this.id = model.id || util.generateRandomUUID() // 生成uuid
@@ -46,5 +47,22 @@ export class MessageInfoModel implements MessageInfo {
     this.messageType = model.messageType || MessageTypeEnum.TEXT
     this.sourceFilePath = model.sourceFilePath
     this.sourceDuration = model.sourceDuration
+  }
+
+  toPlain(): MessageInfo {
+    return {
+      id: this.id,
+      sendUser: this.toPlainUser(this.sendUser),
+      connectUser: this.toPlainUser(this.connectUser),
+      messageContent: this.messageContent,
+      sendTime: this.sendTime,
+      messageType: this.messageType,
+      sourceFilePath: this.sourceFilePath,
+      sourceDuration: this.sourceDuration
+    }
+  }
+
+  private toPlainUser(user: UserInfo): UserInfo {
+    return user instanceof UserInfoModel ? userToPlain(user as UserInfoModel) : user
   }
 }

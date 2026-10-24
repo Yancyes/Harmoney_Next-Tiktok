@@ -1,9 +1,9 @@
 import { CURRENT_USER, STORY, TIKTOK_CONNECT, UserRecord_KEY } from '../constants'
 import { CurrentUser, defaultUserInfo, UserInfo, UserInfoModel } from '../models/user'
-import { MessageInfoModel } from '../models/message'
+import { MessageInfo, MessageInfoModel } from '../models/message'
 import { preferences } from '@kit.ArkData'
-import { C, P } from '../common'
-import { Constants } from '../common/Constants'
+import { AppEnv } from '../common/AppEnv'
+import { C, P } from '../common/Function/commonFn'
 
 type U = UserInfoModel
 type M = MessageInfoModel
@@ -20,9 +20,9 @@ export class Tiktok {
   }
 
   getStore():P {
-    //模块加载期拿不到UI实例context 统一在调用时惰性获取
-    const ctx = this.context || AppStorage.get<C>(Constants.GET_CONTEXT) as C
-    return preferences.getPreferencesSync(ctx, {
+    //模块加载期拿不到context 统一在调用时惰性获取
+    const ctx = this.context || AppEnv.context
+    return preferences.getPreferencesSync(ctx!, {
       name: STORY,
     })
   }
@@ -61,14 +61,6 @@ export class Tiktok {
   }
 
   /**
-   * 把当前用户同步进AppStorage
-   * 读取方都是 @StorageProp currentUser: UserInfoModel 所以这里绝不能写字符串
-   * 退出登录传空模型 首选项仍由 setCurrentUser('') 清空以保留登录门禁判断*/
-  syncCurrentUser(user: U) {
-    AppStorage.setOrCreate(CURRENT_USER, user)
-  }
-
-  /**
    * 获取当前用户*/
   getCurrentUser(): U {
     //如果首选项的用户数据是空字符串返回相关数据
@@ -83,7 +75,8 @@ export class Tiktok {
    * 获取'我'和某个用户的整个的聊天记录 userid对话者的id
    * */
   getChatMessage(userId: string): M[] { //UserRecord_userid=>所有的聊天记录
-    return this.getList<M>(`${UserRecord_KEY}_${userId}`)
+    //JSON还原出来的是裸对象 必须还原成@ObservedV2实例 组件才能监听到消息内容与发送者的变化
+    return this.getList<MessageInfo>(`${UserRecord_KEY}_${userId}`).map(item => new MessageInfoModel(item))
   }
 
   /**
@@ -93,7 +86,7 @@ export class Tiktok {
     const list = this.getChatMessage(userId) //拿到所有的所有的聊天记录
     // 写入list
     list.push(message)
-    store.putSync(`${UserRecord_KEY}_${userId}`, JSON.stringify(list))
+    store.putSync(`${UserRecord_KEY}_${userId}`, JSON.stringify(list.map((item: M) => item.toPlain())))
     await store.flush()
   }
 }
