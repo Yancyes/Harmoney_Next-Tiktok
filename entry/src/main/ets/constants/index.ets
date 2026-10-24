@@ -3,10 +3,6 @@
 export const STORY = "Tiktok_story"
 
 /**
- * 用户信息key*/
-export const TOKEN_KEY = "user_token"
-
-/**
  *联系人Key */
 export const TIKTOK_CONNECT = "Tiktok_connect"
 

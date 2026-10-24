@@ -30,24 +30,49 @@ const showToast =
   }
 
 class commonFn {
+  /**未登录时的提示弹窗*/
+  private showLoginTip() {
+    AlertDialog.show({
+      title: '登录状态监测',
+      message: '请先登录!',
+      alignment: DialogAlignment.Center,
+      confirm: {
+        value: '确定',
+        action: () => {
+          this.nav(Constants.LOADING_LOGIN)
+        }
+      }
+    })
+  }
+
   /**路由重定向*/
   redirect() {
     //如果不是空字符串跳转到登录页
     if (!tiktok.getUserInfo()) {
-      AlertDialog.show({
-        title: '登录状态监测',
-        message: '请先登录!',
-        alignment: DialogAlignment.Center,
-        confirm: {
-          value: '确定',
-          action: () => {
-            router.pushUrl({
-              url: Constants.LOADING_LOGIN
-            })
-          }
-        }
-      })
+      this.showLoginTip()
     }
+  }
+
+  /**
+   * 登录门禁
+   * 之前每个入口都要手写一遍 redirect()+if(getUserInfo()) 判断*/
+  withLogin(action: () => void) {
+    if (tiktok.getUserInfo()) {
+      action()
+    } else {
+      this.showLoginTip()
+    }
+  }
+
+  /**
+   * 统一路由跳转
+   * @param url 页面路径 一律取Constants里的常量
+   * @param params 页面参数*/
+  nav(url: string, params?: object) {
+    router.pushUrl({
+      url: url,
+      params: params
+    })
   }
 
   getJsonFileData(path: string) {

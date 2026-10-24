@@ -1,7 +1,7 @@
 import { ImgComp, LikeTextCount } from '.'
 import { common, Constants } from '../common'
 import { commentDataModel, mediaType } from '../models'
-import { tiktok, tiktokChatStory } from '../utils'
+import { tiktokChatStory } from '../utils'
 
 /**
  * 评论区内容组件*/
@@ -74,11 +74,10 @@ export struct Comment {
             })
               .scale({ x: this.scaleX, y: this.scaleY })
               .onClick(() => {
-                common.redirect()
-                //如果有账号信息
-                if (tiktok.getUserInfo()){
+                //登录状态才能点赞
+                common.withLogin(() => {
                   this.change()
-                }
+                })
               })
               .animation({ duration: 200 })
             LikeTextCount({ count: this.item.likeNum, isChangeColor: this.item.likeFlag, isWhite: false })

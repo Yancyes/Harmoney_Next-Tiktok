@@ -15,9 +15,11 @@ export default struct Message {
   @Prop
   currentMessage: MessageInfoModel = new MessageInfoModel({} as MessageInfo) //当前消息
   /**
-   * isOwnMessage是判断当前的登录用户id是否等于消息发送者的用户id设置元素的出现位置*/
-  @State
-  isOwnMessage: boolean = this.currentUser.user_id === this.currentMessage?.sendUser?.user_id //判断谁发的消息
+   * isOwnMessage是判断当前的登录用户id是否等于消息发送者的用户id设置元素的出现位置
+   * 用方法而不是@State currentMessage(@Prop)变化时才能重新判断*/
+  isOwnMessage(): boolean {
+    return this.currentUser.user_id === this.currentMessage?.sendUser?.user_id
+  }
 
   build() {
     Row() {
@@ -28,12 +30,12 @@ export default struct Message {
         .borderRadius(25)
       Row() {
         Text(this.currentMessage.messageContent)//消息的内容
-          .backgroundColor(this.isOwnMessage ? '#ff42ff0e' : '#ffe9e9e9')
+          .backgroundColor(this.isOwnMessage() ? '#ff42ff0e' : '#ffe9e9e9')
           .fontColor('#000')
           .padding(10)
           .margin({ left: 10, right: 10 })
           .borderRadius(4)
-      }.justifyContent(this.isOwnMessage ? FlexAlign.End : FlexAlign.Start)
+      }.justifyContent(this.isOwnMessage() ? FlexAlign.End : FlexAlign.Start)
       .layoutWeight(6)
 
       Text()
@@ -41,6 +43,6 @@ export default struct Message {
     }.padding({
       left: 20, right: 20
     }).alignItems(VerticalAlign.Top)
-    .direction(this.isOwnMessage ? Direction.Rtl : Direction.Ltr)
+    .direction(this.isOwnMessage() ? Direction.Rtl : Direction.Ltr)
   }
 }

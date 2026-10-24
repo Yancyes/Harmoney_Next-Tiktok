@@ -87,12 +87,13 @@ struct Sidebar {
 
   //添加评论方法
   addComment(content: string) {
+    const now = new Date() //同一次提交用同一个时间 避免跨零点月份和日期不一致
     const msg = new commentDataModel({
       id: util.generateRandomUUID(),
       avatar: 'https://picx.zhimg.com/027729d02bdf060e24973c3726fea9da_l.jpg?source=06d4cd63',
       author: 'smallMiSu7',
       content,
-      time: `${common.toStr(new Date().getMonth() + 1)}-${common.toStr(new Date().getDate())}`,
+      time: `${common.toStr(now.getMonth() + 1)}-${common.toStr(now.getDate())}`,
       area: common.getRandomCity(),
       likeNum: common.getRandom(99999 + 1),
       likeFlag: false

@@ -1,6 +1,5 @@
 import { UserInfo, UserInfoModel } from '../../models/index'
 import { router } from '@kit.ArkUI'
-import { CURRENT_USER } from '../../constants'
 import { tiktok } from '../../utils/setting'
 import { userData } from '../../api'
 import { Constants, common, tipDialog } from '../../common'
@@ -75,7 +74,7 @@ struct LoginPage {
         const token = userData(this.userInfo)
         //用户信息校验
         if (this.userInfo.username && this.userInfo.password) {
-          AppStorage.set(CURRENT_USER, new UserInfoModel({
+          tiktok.syncCurrentUser(new UserInfoModel({
             username: this.userInfo.username,
             password: this.userInfo.password,
             tiktokNub: this.userInfo.tiktokNub,
@@ -152,5 +151,3 @@ struct LoginPage {
     .alignItems(HorizontalAlign.Center)
   }
 }
-
-export default LoginPage

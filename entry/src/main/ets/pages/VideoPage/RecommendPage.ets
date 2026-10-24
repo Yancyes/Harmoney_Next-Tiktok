@@ -5,9 +5,8 @@ import { DataSource, mediaType } from '../../models'
 const videoDataResource = 'videos.json'
 
 /**
- * 推荐页
+ * 推荐页 只作为顶部栏 Tabs 的一页使用 不是路由入口
  * */
-@Entry
 @Component
 struct RecommendPage {
   /**

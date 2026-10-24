@@ -1,11 +1,9 @@
 {
   "src": [
     "pages/Index/Index",
-    "pages/VideoPage/RecommendPage",
     "pages/Login/LoginPage",
     "pages/Setting/SettingPage",
     "pages/Shop/ShopPage",
-    "pages/Message/MessagePage",
     "pages/Search/SearchPage",
     "pages/ChatDetail/ChatDetail",
     "pages/My/VdDetail",

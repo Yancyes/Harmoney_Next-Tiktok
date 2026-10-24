@@ -1,9 +1,9 @@
 import { Colm, customDialog, ImgComp, TitleBtn, TopBar } from '.'
-import { C, common, Constants, tipDialog } from '../common'
+import { common, Constants, tipDialog } from '../common'
 import { BarClass, TabList } from '../models'
-import { UserInfo, UserInfoModel } from '../models/user'
+import { UserInfoModel } from '../models/user'
 import { MessagePage } from '../pages/Message/MessagePage'
-import { tiktok, Tiktok } from '../utils/setting'
+import { tiktok } from '../utils/setting'
 import MyPage from '../pages/My/My'
 import { photoAccessHelper } from '@kit.MediaLibraryKit'
 import { TikTokEmitter } from '../utils/TIkTokEmitter'
@@ -34,40 +34,26 @@ export struct bottomNav {
     {
       title: '朋友',
       name: BtnType.Friend,
-      click: () => {
-        common.redirect()
-      }
     },
     {
       icon: $r('app.media.ic_uploading'),
       name: BtnType.Upload,
       click: () => {
-        common.redirect()
-        if (tiktok.getUserInfo()) {
-          this.showUploadDialog = true
-        }
+        this.showUploadDialog = true
       }
     },
     {
       title: '信息',
       name: BtnType.Message,
-      click: () => {
-        common.redirect()
-      }
     },
     {
       title: '我',
       name: BtnType.My,
-      click: () => {
-        common.redirect()
-      }
     }
   ]
   tabController: TabsController = new TabsController()
   @State
   currentIndex: number = 0
-  @State
-  userInfo: UserInfoModel = new UserInfoModel({} as UserInfo)
   //底部title字体的颜色
   @State
   titleColor: ResourceColor[] = [Color.White, Color.Gray]
@@ -75,7 +61,7 @@ export struct bottomNav {
   @Provide
   dialogBgColor: ResourceColor = '' //修改渐变背景色只能通过#00000000的方式
   @Provide
-  info: UserInfoModel = new Tiktok(AppStorage.get(Constants.GET_CONTEXT) as C).getCurrentUser()
+  info: UserInfoModel = tiktok.getCurrentUser()
   @Consume
   IndexX: number | string //整个index页面的x坐标
   @Provide
@@ -99,8 +85,8 @@ export struct bottomNav {
     //如果有图片 这里的业务只需要单个图片
     if (result.photoUris.length) {
       this.info.avatar = result.photoUris.toString()
-      const token = this.info
-      await new Tiktok(AppStorage.get(Constants.GET_CONTEXT) as C).setCurrentUser(JSON.stringify(token)) //写入首选项
+      await tiktok.setCurrentUser(JSON.stringify(this.info)) //写入首选项
+      tiktok.syncCurrentUser(this.info) //同步全局状态 否则聊天页读到旧头像
     }
   }
 
@@ -187,28 +173,24 @@ export struct bottomNav {
       }
     }
     .onClick(() => {
-      //通过获取索引值实现点击切换tab
-      item.click && item.click()
-      //如果有用户信息才执行点击事件
-      if (tiktok.getUserInfo()) {
-        //非图标按钮允许执行后续逻辑
-        if (item.name !== BtnType.Upload) {
-          const index = this.btmTabList.findIndex(obj => obj.name === item.name)
-          this.tabController.changeIndex(index)
-          //不是主页 禁止播放
-          if (item.name !== BtnType.Home) {
-            TikTokEmitter.Emitter_VideoCrl(false)
-          }
-          //如果底部栏索引是首页且顶部栏索引是推荐页开启播放器
-          if (item.name === BtnType.Home && this.topNavCurrentIndex === this.topTabList.length - 1) {
-            TikTokEmitter.Emitter_VideoCrl(true)
-          }
-        }
-        //如果是功能按钮停止播放
+      //未登录只弹登录提示 登录后才执行切换
+      common.withLogin(() => {
+        item.click && item.click()
+        //功能按钮只负责暂停播放
         if (item.name === BtnType.Upload) {
           TikTokEmitter.Emitter_VideoCrl(false)
+          return
         }
-      }
+        this.tabController.changeIndex(index)
+        //不是主页 禁止播放
+        if (item.name !== BtnType.Home) {
+          TikTokEmitter.Emitter_VideoCrl(false)
+        }
+        //如果底部栏索引是首页且顶部栏索引是推荐页开启播放器
+        if (item.name === BtnType.Home && this.topNavCurrentIndex === this.topTabList.length - 1) {
+          TikTokEmitter.Emitter_VideoCrl(true)
+        }
+      })
     })
   }
 

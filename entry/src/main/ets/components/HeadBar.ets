@@ -36,14 +36,12 @@ export struct HeadBar {
   build() {
     Row() {
       if (this.isShowLeftIcon) { //是否显示左侧图标和主内容
-        if (this.isShowLeftIcon) {
-          ImgComp({
-            imgWidth: 30,
-            imgSrc: this.LeftIcon
-          }).onClick(() => {
-            this.LeftIconClick()
-          })
-        }
+        ImgComp({
+          imgWidth: 30,
+          imgSrc: this.LeftIcon
+        }).onClick(() => {
+          this.LeftIconClick()
+        })
         if (this.BarMainContent && this.isShowMainContent) {
           this.BarMainContent()
         }

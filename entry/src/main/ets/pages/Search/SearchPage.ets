@@ -1,8 +1,8 @@
 import { router } from '@kit.ArkUI'
-import { Constants } from '../../common/Constants'
-import { ImgComp } from '../../components'
-import { UserInfo, UserInfoModel } from '../../models/user'
-import { Tiktok } from '../../utils/setting'
+import { common, Constants } from '../../common'
+import { ContactRow } from '../../components/ContactRow'
+import { UserInfo } from '../../models/user'
+import { tiktok } from '../../utils/setting'
 
 interface routerParamsName {
   name: string
@@ -21,11 +21,9 @@ struct SearchPage {
   @Watch('updateFilterList')
   searchName: string = ''
   @State
-  filterList: UserInfoModel[] = []
+  filterList: UserInfo[] = []
   @State
-  isMsg: boolean = false
-  @State
-  searchValue: string = getParams().name
+  searchValue: string = getParams()?.name ?? '搜索'
 
   aboutToAppear(): void {
     this.getUserList()
@@ -35,18 +33,16 @@ struct SearchPage {
   /*
    * 获取用户列表*/
   getUserList() {
-    this.userList = new Tiktok(getContext()).getTikTokConnect()
+    this.userList = tiktok.getTikTokConnect()
     this.updateFilterList()
   }
 
   /*
-   *更新筛选列表*/
+   * 更新列表 有关键字就筛选 没关键字回到完整联系人列表
+   * 原先靠入口传参('搜索')决定渲染与否 从顶栏进入时列表恒空*/
   updateFilterList() {
-    if (this.searchName) {
-      this.filterList = this.userList.filter(item => item.username.includes(this.searchName))
-      return
-    }
-    this.filterList = [] //列表为空
+    this.filterList = this.searchName ? this.userList.filter(item => item.username.includes(this.searchName)) :
+      this.userList
   }
 
   build() {
@@ -76,41 +72,20 @@ struct SearchPage {
       })
       .width('100%').height(50)
 
-      //内容区域
-      //判断接收值渲染相应内容
-      if (this.searchValue === '搜索') {
-        List({ space: 15 }) {
-          ForEach(this.filterList, (item: UserInfo) => {
-            ListItem() {
-              Row({ space: 10 }) {
-                ImgComp({
-                  imgWidth: 70,
-                  imgSrc: item.avatar
-                })
-                  .border({ radius: 35 })
-                Row() {
-                  Column() {
-                    Text(item.username).fontWeight(600).fontSize(24)
-                    Text(item.content)
-                  }.width('100%').alignItems(HorizontalAlign.Start)
-                }
-
-              }.width('100%')
-            }.layoutWeight(1)
-            .onClick(() => {
-              router.pushUrl({
-                url: Constants.LOADING_ChatDetail,
-                params: item
-              })
-            })
+      //内容区域 联系人列表/筛选结果
+      List({ space: 15 }) {
+        ForEach(this.filterList, (item: UserInfo) => {
+          ListItem() {
+            ContactRow({ item: item })
+          }
+          .onClick(() => {
+            common.nav(Constants.LOADING_ChatDetail, item)
           })
-
-        }.scrollBar(BarState.Off).margin({ top: 20, left: 10, right: 15 })
-
+        }, (item: UserInfo) => `${item.user_id}`)
       }
+      .scrollBar(BarState.Off)
+      .margin({ top: 20, left: 10, right: 15 })
 
     }.padding({ left: 20, right: 20 }).width('100%').height('100%').backgroundColor(Color.White)
   }
 }
-
-export { SearchPage }

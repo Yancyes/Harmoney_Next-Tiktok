@@ -86,8 +86,6 @@ export default struct MyPage {
   @Consume
   IndexX: number | string
   @State
-  private personInfo: ResourceStr | undefined = undefined
-  @State
   currentIndex: number = 0
   /**
    * 按钮标签宽度*/
@@ -243,7 +241,7 @@ export default struct MyPage {
 
           //个人介绍
           Row() {
-            Text(this.personInfo === undefined ? 'I‘m form UK❥(^_-)' : this.personInfo).fontSize(14)
+            Text('I‘m form UK❥(^_-)').fontSize(14)
               .fontColor(Color.Black).textAlign(TextAlign.Start)
           }.width('100%').padding(10)
 
@@ -314,12 +312,15 @@ export default struct MyPage {
     }
     .scrollBar(BarState.Off)
     .height('120%')
-    .onVisibleAreaChange([0, 1], () => {
-      this.videoBgUrl = AppStorage.get(Constants.GET_VIDEO_IMG_URL)!
-      //添加收藏数据
-      this.video_collection = TiktokCollection.getCollectionData()
-      //添加喜欢数据
-      this.video_like = TiktokLike.getLikeData()
+    .onVisibleAreaChange([0, 1], (isVisible: boolean, currentRatio: number) => {
+      //完全离开页面时不需要重新解析首选项
+      if (isVisible && currentRatio > 0) {
+        this.videoBgUrl = AppStorage.get(Constants.GET_VIDEO_IMG_URL)!
+        //添加收藏数据
+        this.video_collection = TiktokCollection.getCollectionData()
+        //添加喜欢数据
+        this.video_like = TiktokLike.getLikeData()
+      }
     })
     //修改整个页面的坐标
     .onClick(() => {

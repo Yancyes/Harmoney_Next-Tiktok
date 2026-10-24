@@ -122,6 +122,20 @@ export struct VideoComp {
     emitter.off(Constants.GLOBAL_VIDEO_CONTROLLER_PAUSE, this.pauseCallback)
   }
 
+  /**
+   * 复用节点不会再走aboutToAppear 内部@State会残留上一项的播放状态 这里统一归位*/
+  aboutToReuse(): void {
+    this.playIng = this.activeIndex === this.index
+    this.videoSpeed = 1
+    this.videoPlayProgress = 0
+    this.videoTotalDuration = 0
+    this.isShowVideoProgressSlider = false
+    this.isShowDescribe = true
+    this.showCommentDialog = false
+    this.dialogHeight = 0
+    this.getMyPageVideoUrl()
+  }
+
   getMyPageVideoUrl() {
     AppStorage.setOrCreate(Constants.GET_VIDEO_IMG_URL, this.item.video.play_addr.url_list[0])
   }
@@ -222,15 +236,14 @@ export struct VideoComp {
               this.isShowDescribe = false
               this.isShowRightSideBar = false
             }
-            const condition = this.videoPlayProgress < this.videoTotalDuration
-            if (condition) {
+            if (this.videoPlayProgress < this.videoTotalDuration) {
               //手指在屏幕左侧
               if (e.fingerList[0].globalX < this.screenWidth / 2) {
                 if (this.videoPlayProgress > 0) {
-                  this.setVideoProgress(this.videoPlayProgress--)
+                  this.setVideoProgress(this.videoPlayProgress - 1)
                 }
               } else {
-                this.setVideoProgress(this.videoPlayProgress++)
+                this.setVideoProgress(this.videoPlayProgress + 1)
               }
             }
           })

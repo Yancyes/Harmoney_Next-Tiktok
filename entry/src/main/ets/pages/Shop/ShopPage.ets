@@ -7,8 +7,6 @@ import { waterFlowList } from '../../components'
 @Entry
 @Component
 struct ShopPage {
-  @State
-  loading: boolean = false //加载的激活条件
   /**
    * 懒加载商品数据*/
   private shopDataInfo: DataSource<shopType> = new DataSource(shopData)

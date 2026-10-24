@@ -6,7 +6,7 @@ import { CURRENT_USER } from '../../constants'
 import { UserInfo, UserInfoModel } from '../../models'
 import { MessageInfo, MessageInfoModel } from '../../models/message'
 import { request } from '../../utils/request'
-import { Tiktok } from '../../utils/setting'
+import { tiktok } from '../../utils/setting'
 import { ChatResponse } from '../../models/chat'
 
 /**
@@ -28,7 +28,7 @@ struct ChatDetail {
   /**
    * 获取所有聊天记录*/
   getAllRecord() {
-    this.messList = new Tiktok(getContext()).getChatMessage(this.talkUser.user_id)
+    this.messList = tiktok.getChatMessage(this.talkUser.user_id)
     this.scroller.scrollEdge(Edge.Bottom)
   }
 
@@ -54,7 +54,7 @@ struct ChatDetail {
       connectUser: this.talkUser, //联系人发的消息
     } as MessageInfo)
     this.messList.push(mess) //追加消息
-    new Tiktok(getContext()).addOwnChatMessage(this.talkUser.user_id, mess)
+    tiktok.addOwnChatMessage(this.talkUser.user_id, mess)
     //发送消息到服务器 得到响应内容
     this.getResponseMessage(content)
     this.scroller.scrollEdge(Edge.Bottom)
@@ -78,7 +78,7 @@ struct ChatDetail {
       connectUser: this.talkUser, //联系人发的消息
     } as MessageInfo)
     this.messList.push(mess)
-    new Tiktok(getContext()).addOwnChatMessage(this.talkUser.user_id, mess)
+    tiktok.addOwnChatMessage(this.talkUser.user_id, mess)
     this.textInputIng = false
     this.scroller.scrollEdge(Edge.Bottom)
   }

@@ -1,12 +1,12 @@
 import { UserInfo } from '../../models/user'
-import { Tiktok } from '../../utils/setting'
-import { router } from '@kit.ArkUI'
+import { tiktok } from '../../utils/setting'
+import { common } from '../../common'
+import { ContactRow } from '../../components/ContactRow'
 import { HeadBar } from '../../components'
 import { Constants } from '../../common/Constants'
 
 /**
- * 消息页面*/
-@Entry
+ * 消息页面 只作为底部导航的一个子页使用 不是路由入口*/
 @Component
 export struct MessagePage {
   @State
@@ -24,23 +24,15 @@ export struct MessagePage {
   }
 
   getUserList() {
-    this.userList = new Tiktok(getContext()).getTikTokConnect()
-  }
-
-  @Styles
-  img(){
-    .width(28).height(28)
+    this.userList = tiktok.getTikTokConnect()
   }
 
   /**
    * 搜索联系人*/
   searchConcat() {
-    router.pushUrl({
-      url: Constants.LOADING_SEARCH,
-      params: {
-        name: '搜索'
-      }
-    })
+    common.nav(Constants.LOADING_SEARCH, {
+      name: '搜索'
+    } as Record<string, string>)
   }
 
   /**
@@ -48,7 +40,7 @@ export struct MessagePage {
   openLeftSideBar() {
     animateTo({ duration: 200 }, () => {
       this.showDialog = !this.showDialog
-      this.dialogBgColor = '#80000000'
+      this.dialogBgColor = Constants.COLOR_OpacityBlack
       //更改坐标轴
       this.IndexX = '70%'
     })
@@ -70,29 +62,12 @@ export struct MessagePage {
       List({ space: 15 }) {
         ForEach(this.userList, (item: UserInfo) => {
           ListItem() {
-            Row({ space: 10 }) {
-              Image(item.avatar).width(70).height(70).border({ radius: 35 })
-              Row() {
-                Column() {
-                  Text(item.username).fontWeight(600).fontSize(24)
-                  Text(item.content)
-                    .fontColor('#ff646464')
-                    .fontSize(14)
-                    .maxLines(1)
-                    .textOverflow({
-                      overflow: TextOverflow.Ellipsis
-                    })
-                }.width('100%').alignItems(HorizontalAlign.Start)
-              }
-            }.width('100%')
+            ContactRow({ item: item })
           }
           .onClick(() => {
-            router.pushUrl({
-              url: Constants.LOADING_ChatDetail,
-              params: item
-            })
+            common.nav(Constants.LOADING_ChatDetail, item)
           })
-        })
+        }, (item: UserInfo) => `${item.user_id}`)
       }.layoutWeight(1)
       .scrollBar(BarState.Off)
       .margin({

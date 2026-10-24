@@ -1,7 +1,6 @@
 import { ImgComp } from '.'
 import { shopType } from '../models'
-import { router } from '@kit.ArkUI'
-import { Constants } from '../common'
+import { common, Constants } from '../common'
 
 @Reusable
 @Component
@@ -9,6 +8,9 @@ export struct shopComp {
   @Require
   @Prop
   item: shopType
+  //复用时普通成员不会更新 奇偶错落的高度会残留上一项
+  @Require
+  @Prop
   index: number = 0
 
   build() {
@@ -39,10 +41,7 @@ export struct shopComp {
         })
       }.margin(10)
     }.onClick(() => {
-      router.pushUrl({
-        url: Constants.SHOP_DETAIL,
-        params: this.item
-      })
+      common.nav(Constants.SHOP_DETAIL, this.item)
     })
   }
 }

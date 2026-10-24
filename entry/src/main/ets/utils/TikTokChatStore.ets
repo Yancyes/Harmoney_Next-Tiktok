@@ -1,5 +1,5 @@
 import { preferences } from '@kit.ArkData'
-import { commentDataModel } from '../models'
+import { commentData, commentDataModel } from '../models'
 import { Constants } from '../common/Constants'
 
 class TiktokChatStory {
@@ -57,9 +57,11 @@ class TiktokChatStory {
   /**
    * 获取一条视频的所有评论数据
    * @param {String} videoId 视频的id */
-  getOneTiktokVideoAllComment(videoId: string) {
+  getOneTiktokVideoAllComment(videoId: string): commentDataModel[] {
     const store = this.getVideoStore(videoId)
-    return JSON.parse(store.getSync(videoId, '[]') as string) as commentDataModel[]
+    const list = JSON.parse(store.getSync(videoId, '[]') as string) as commentData[]
+    //JSON还原出来的是裸对象 必须还原成@Observed实例 @ObjectLink才能监听到点赞数等字段变化
+    return list.map(item => new commentDataModel(item))
   }
 
   /**

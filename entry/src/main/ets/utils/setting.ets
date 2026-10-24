@@ -31,6 +31,14 @@ export class Tiktok {
     const Store = this.getStore()
     return JSON.parse(Store.getSync(key, JSON.stringify(value)) as string) as T
   }
+
+  /**
+   * 读取以JSON数组存放的键
+   * 数组缺省值不能再走一次JSON.stringify 否则解析出来的是字符串'[]'*/
+  getList<T>(key: string): T[] {
+    const list = JSON.parse(this.getStore().getSync(key, '[]') as string) as T[]
+    return Array.isArray(list) ? list : []
+  }
   /**
    * 获取用户信息*/
   getUserInfo(){
@@ -39,9 +47,11 @@ export class Tiktok {
   }
 
   /**
-   * 获取抖音联系人*/
-  getTikTokConnect() {
-    return this.getData<U[]>(TIKTOK_CONNECT, defaultUserInfo)
+   * 获取抖音联系人
+   * 联系人从未落库 首选项没有这个键时用默认列表兜底*/
+  getTikTokConnect(): U[] {
+    const list = this.getList<UserInfo>(TIKTOK_CONNECT)
+    return (list.length ? list : defaultUserInfo).map(item => new UserInfoModel(item))
   }
 
   async setCurrentUser(token: string) {
@@ -51,11 +61,19 @@ export class Tiktok {
   }
 
   /**
+   * 把当前用户同步进AppStorage
+   * 读取方都是 @StorageProp currentUser: UserInfoModel 所以这里绝不能写字符串
+   * 退出登录传空模型 首选项仍由 setCurrentUser('') 清空以保留登录门禁判断*/
+  syncCurrentUser(user: U) {
+    AppStorage.setOrCreate(CURRENT_USER, user)
+  }
+
+  /**
    * 获取当前用户*/
-  getCurrentUser() {
+  getCurrentUser(): U {
     //如果首选项的用户数据是空字符串返回相关数据
     return this.getUserInfo()?
-      this.getData<U>(CURRENT_USER,CurrentUser) :
+      new UserInfoModel(this.getData<UserInfo>(CURRENT_USER,CurrentUser)) :
       //首次进入程序首选项没有任何数据返回一个空对象 防止出现无法进入程序等报错
       new UserInfoModel({} as UserInfo)
   }
@@ -64,16 +82,8 @@ export class Tiktok {
   /**
    * 获取'我'和某个用户的整个的聊天记录 userid对话者的id
    * */
-  getChatMessage(userId: string) { //UserRecord_userid=>所有的聊天记录
-    return this.getData<M[]>(`${UserRecord_KEY}_${userId}`, '[]')
-  }
-
-  /**
-   * 删除'我和某个人的整个的聊天记录'*/
-  async delChatMessage(userId: string) {
-    const store = this.getStore()
-    store.deleteSync(`${UserRecord_KEY}_${userId}`)
-    await store.flush()
+  getChatMessage(userId: string): M[] { //UserRecord_userid=>所有的聊天记录
+    return this.getList<M>(`${UserRecord_KEY}_${userId}`)
   }
 
   /**
@@ -85,47 +95,6 @@ export class Tiktok {
     list.push(message)
     store.putSync(`${UserRecord_KEY}_${userId}`, JSON.stringify(list))
     await store.flush()
-  }
-
-  /**
-   * 删除一条"我"和某个人的聊天记录*/
-  async delOwnChatMessage(userId: string, messId: string) {
-    const store = this.getStore()
-    const list = this.getChatMessage(userId) //拿到所有的所有的聊天记录
-    const index = list.findIndex(item => item.id === messId)
-    //找不到时不能splice(-1) 否则会误删末项
-    if (index === -1) {
-      return
-    }
-    list.splice(index, 1) //删除
-    // 写入list
-    store.putSync(`${UserRecord_KEY}_${userId}`, JSON.stringify(list))
-    await store.flush()
-  }
-
-  /**
-   * 获取所有人的最后的一条聊天记录的集合*/
-  getAllLastRecord() {
-    const store = this.getStore()
-    const arr: M[] = []
-    const result = store.getAllSync() as object
-    Object.keys(result).forEach(key => {
-      if (key.includes(UserRecord_KEY)) {
-        //key对应的value
-        if (result[key]) {
-          const list = JSON.parse(result[key]) as M[] //所有的聊天记录
-          if (list.length) {
-            arr.push(list[list.length-1])
-
-          }
-        }
-      }
-    })
-    //按照时间排序
-    arr.sort((a: M, b: M) => {
-      return b.sendTime - a.sendTime
-    }) //会对原数组排序
-    return arr
   }
 }
 
