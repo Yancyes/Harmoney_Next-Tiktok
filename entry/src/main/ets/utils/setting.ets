@@ -75,8 +75,9 @@ export class Tiktok {
    * 获取'我'和某个用户的整个的聊天记录 userid对话者的id
    * */
   getChatMessage(userId: string): M[] { //UserRecord_userid=>所有的聊天记录
-    //JSON还原出来的是裸对象 必须还原成@ObservedV2实例 组件才能监听到消息内容与发送者的变化
-    return this.getList<MessageInfo>(`${UserRecord_KEY}_${userId}`).map(item => new MessageInfoModel(item))
+    return this.getList<MessageInfo>(`${UserRecord_KEY}_${userId}`)
+      .filter(item => !!item && !!item.sendUser && !!item.messageContent)
+      .map(item => new MessageInfoModel(item))
   }
 
   /**
@@ -86,6 +87,15 @@ export class Tiktok {
     const list = this.getChatMessage(userId) //拿到所有的所有的聊天记录
     // 写入list
     list.push(message)
+    store.putSync(`${UserRecord_KEY}_${userId}`, JSON.stringify(list.map((item: M) => item.toPlain())))
+    await store.flush()
+  }
+
+  /**
+   * 删除一条聊天记录*/
+  async delChatMessage(userId: string, messageId: string) {
+    const store = this.getStore()
+    const list = this.getChatMessage(userId).filter((item: M) => item.id !== messageId)
     store.putSync(`${UserRecord_KEY}_${userId}`, JSON.stringify(list.map((item: M) => item.toPlain())))
     await store.flush()
   }

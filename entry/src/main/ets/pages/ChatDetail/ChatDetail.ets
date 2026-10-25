@@ -56,6 +56,17 @@ export struct ChatDetail {
   }
 
   /**
+   * 删除一条聊天记录 气泡里的删除按钮触发*/
+  delMessage(item: MessageInfoModel) {
+    const index = this.messList.findIndex((message: MessageInfoModel) => message.id === item.id)
+    if (index === -1) {
+      return
+    }
+    this.messList.splice(index, 1)
+    tiktok.delChatMessage(this.talkUser.user_id, item.id)
+  }
+
+  /**
    * 发送输入框里的内容 空内容与纯空格不发送*/
   sendCurrent() {
     const text = this.content.trim()
@@ -196,7 +207,13 @@ export struct ChatDetail {
         List({ space: 14, scroller: this.scroller }) {
           ForEach(this.messList, (item: MessageInfoModel, index: number) => {
             ListItem() {
-              Message({ currentMessage: item, showTime: this.isTimeBreak(index) })
+              Message({
+                currentMessage: item,
+                showTime: this.isTimeBreak(index),
+                deleteMessage: (message: MessageInfoModel) => {
+                  this.delMessage(message)
+                }
+              })
             }
           }, (item: MessageInfoModel) => item.id)
         }

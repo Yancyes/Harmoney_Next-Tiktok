@@ -15,11 +15,45 @@ export default struct Message {
   @Param
   showTime: boolean = false
   /**
+   * 删除本条消息 列表与首选项都由父组件维护*/
+  @Event
+  deleteMessage: (item: MessageInfoModel) => void = () => {
+  }
+  /**
+   * 长按弹出的删除气泡显隐*/
+  @Local
+  showDeleteTip: boolean = false
+  /**
    * isOwnMessage是判断当前的登录用户id是否等于消息发送者的用户id设置元素的出现位置
    * 用@Computed 登录用户或发送者变化时才会重新取值并驱动刷新*/
   @Computed
   get isOwnMessage(): boolean {
     return this.gs.currentUser.user_id === this.currentMessage?.sendUser?.user_id
+  }
+
+  /**
+   * 气泡内容 由返回值给对象字面量提供上下文类型*/
+  deleteTip(): PopupOptions {
+    return {
+      message: '删除该消息',
+      placement: Placement.Top,
+      targetSpace: 12,
+      enableArrow: true,
+      mask: false,
+      primaryButton: {
+        value: '删除',
+        action: () => {
+          this.showDeleteTip = false
+          this.deleteMessage(this.currentMessage)
+        }
+      },
+      secondaryButton: {
+        value: '取消',
+        action: () => {
+          this.showDeleteTip = false
+        }
+      }
+    }
   }
 
   @Builder
@@ -44,6 +78,10 @@ export default struct Message {
       .borderRadius(14)
       .constraintSize({ maxWidth: '70%' })
       .textAlign(TextAlign.Start)
+      .gesture(LongPressGesture().onAction(() => {
+        this.showDeleteTip = true
+      }))
+      .bindPopup(this.showDeleteTip!!, this.deleteTip())
   }
 
   build() {
