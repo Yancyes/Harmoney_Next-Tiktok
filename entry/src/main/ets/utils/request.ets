@@ -24,7 +24,7 @@ instance.interceptors.response.use((response: AxiosResponse) => {
   //打印信息
   Log.info('2.响应结果' + JSON.stringify(response))
   //返回数据]
-  return response.data
+  return response.data.data
 
 }, (error: AxiosError) => {
   logError(error)
