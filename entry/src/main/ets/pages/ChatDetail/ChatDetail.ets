@@ -1,11 +1,10 @@
 import { common, globalState, GlobalState, tipDialog } from '../../common'
 import { ImgComp } from '../../components'
 import Message from '../../components/Message'
-import { UserInfo, UserInfoModel } from '../../models'
+import { ChatData, UserInfo, UserInfoModel } from '../../models'
 import { MessageInfo, MessageInfoModel } from '../../models/message'
 import { request } from '../../utils/request'
 import { tiktok } from '../../utils/setting'
-import { ChatResponse } from '../../models/chat'
 
 /**
  * 相邻消息间隔超过5分钟才再次显示时间 与私信习惯一致*/
@@ -86,17 +85,13 @@ export struct ChatDetail {
   async getResponseMessage(content: string) {
     this.textInputIng = true
     try {
-      const result = await request<ChatResponse>({
+      const result = await request<ChatData>({
         url: `bot?userid=${Date.now()}&spoken=${encodeURIComponent(content)}`,
         //接口实测要2~3秒 实例默认的5秒在手机上很容易超时 这里单独放宽
         timeout: 20000
       })
-      const text = result.data?.info?.text
-      if (!text) {
-        //接口通但没有回复内容 不能往列表里塞空气泡
-        tipDialog('对方没有回复', 2000, Alignment.Top)
-        return
-      }
+      const text = result.info.text
+      if (!text) return
       /**
        * 这里的mess是机器人回复的信息，里面的发送用户是聊天的对象回复的*/
       const mess = new MessageInfoModel({

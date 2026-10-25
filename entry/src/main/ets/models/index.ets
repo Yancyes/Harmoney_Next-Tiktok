@@ -16,3 +16,5 @@ export { mediaType } from './mediaType'
 export * from './Type'
 
 export * from './shopData'
+
+export * from './chat'
