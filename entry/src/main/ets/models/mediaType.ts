@@ -15,14 +15,8 @@ interface PlayableResourceBase extends ResourceBase {
   file_cs?: string;
 }
 
-interface MusicCover extends ResourceBase {}
-
-interface VideoCover extends ResourceBase {}
-
-interface MusicPlayUrl extends PlayableResourceBase {}
-
 interface VideoPlayAddr extends PlayableResourceBase {
-  data_size: number; // 覆盖为必选字段
+  data_size: number;
   file_hash: string;
   file_cs: string;
 }
@@ -31,9 +25,9 @@ interface Music {
   id: number;
   title: string;
   author: string;
-  cover_medium: MusicCover;
-  cover_thumb: MusicCover;
-  play_url: MusicPlayUrl;
+  cover_medium: ResourceBase;
+  cover_thumb: ResourceBase;
+  play_url: PlayableResourceBase;
   duration: number;
   user_count: number;
   owner_id: string;
@@ -43,7 +37,7 @@ interface Music {
 
 interface Video extends Base {
   play_addr: VideoPlayAddr;
-  cover: VideoCover;
+  cover: ResourceBase;
   poster: string;
   ratio: string;
   use_static_cover: boolean;
