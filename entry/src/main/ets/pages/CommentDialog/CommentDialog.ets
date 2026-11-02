@@ -253,9 +253,7 @@ struct CommentDialog {
      * 动态路由的参数只能在NavDestination挂载后从pathInfo里取*/
     .onReady((context: NavDestinationContext) => {
       const uri = context.pathInfo.param as string | undefined
-      if (uri) {
-        this.open(uri)
-      }
+      uri && this.open(uri)
     })
   }
 }
